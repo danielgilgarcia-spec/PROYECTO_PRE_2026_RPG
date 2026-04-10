@@ -1,0 +1,6 @@
+dgg,1,Normal
+dgg2,2,Fácil
+dgg3,1,Difícil
+dgg4,1,Fácil
+dgg6,1,Normal
+dgg7,1,Normal
