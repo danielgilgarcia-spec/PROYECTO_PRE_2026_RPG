@@ -1,5 +1,5 @@
 """
-RPG - EN BUSCA DE LA TRIPULACIÓN PERDIDA - Un juego de rol de aventura y exploración
+RPG - EN BUSCA DE LA TRIPULACIÓN PERDIDA
 Controles: Flechas para moverse, ESPACIO para interactuar/atacar
 """
 
