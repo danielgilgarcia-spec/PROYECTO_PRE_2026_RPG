@@ -1,6 +1,6 @@
 import pygame
 import random
-#modificar, crear un archivo por cada enemy y cargar imagenes de cada uno, con un fondo de batalla diferente para cada uno, y una imagen de fondo para la historia, y una imagen para el mapa.
+
 
 class RandomEnemy:
     def __init__(self, level):

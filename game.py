@@ -156,6 +156,12 @@ class Game:
             self.player.y    = 5
             self.message     = "¡Nivel 2 cargado!"
             pygame.time.wait(800)
+        elif self.current_map is game_map_2:
+            self.current_map = game_map_3
+            self.player.x    = 5
+            self.player.y    = 5
+            self.message     = "¡Nivel 3 cargado!"
+            pygame.time.wait(800)   
         else:
             self.message = "¡Nivel completado!"
             pygame.time.wait(800)
