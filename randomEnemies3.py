@@ -5,26 +5,36 @@ import random
 class RandomEnemy:
     def __init__(self, level):
         enemy_types = [
-            {"name": "Dragon_1", "hp": 30, "atk": 8, "exp": 20},
-            {"name": "Goblin_1", "hp": 50, "atk": 12, "exp": 35}
+            {
+                "name": "Dragon_1",
+                "hp": 30,
+                "atk": 8,
+                "exp": 20,
+                "image": "assets/enemies/Dragon_1.png"
+            },
+            {
+                "name": "Goblin_1",
+                "hp": 50,
+                "atk": 12,
+                "exp": 35,
+                "image": "assets/enemies/Goblin_1.png"
+            }
         ]
+
+        # Selección aleatoria del enemigo
         enemy = random.choice(enemy_types)
+
         self.name = enemy["name"]
         self.max_hp = enemy["hp"] + (level * 5)
         self.hp = self.max_hp
         self.attack = enemy["atk"] + level
         self.exp_reward = enemy["exp"]
 
-        # Cargar imagen PNG según el tipo de enemigo
-        imagenes = {
-            "Dragon_1": "assets/enemies/Dragon_1.png",
-            "Goblin_1": "assets/enemies/Goblin_1.png"
-        }
-        img_file1 = imagenes.get(self.name, "assets/enemies/Dragon_1.png")
-        img_file2 = imagenes.get(self.name, "assets/enemies/Goblin_1.png")
         try:
-            self.imagen1 = pygame.image.load(img_file1).convert_alpha()
-            self.imagen2 = pygame.image.load(img_file2).convert_alpha()
-        except Exception:
-            self.imagen1 = None
-            self.imagen2 = None
+            # Cargar la imagen correspondiente al enemigo elegido aleatoriamente
+            self.image = pygame.image.load(enemy["image"]).convert_alpha()
+            print(f"Imagen cargada correctamente: {enemy['image']}")
+
+        except Exception as e:
+            print(f"Error cargando imagen: {e}")
+            self.image = None
