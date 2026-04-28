@@ -5,6 +5,7 @@ El Renderer recibe la superficie (screen) y los assets, y expone métodos
 para cada estado: draw_intro, draw_exploring, draw_battle.
 """
 
+import os
 import random
 import pygame
 
@@ -124,70 +125,110 @@ class Renderer:
     # Batalla
     # ------------------------------------------------------------------
     def draw_battle(self, player, enemy, message: str, battle_choice: int):
-        self.screen.fill(COLORS["BLACK"])
+    self.screen.fill(COLORS["BLACK"])
 
-        # Fondo de batalla
-        battle_bg = pygame.Rect(50, 50, SCREEN_WIDTH - 100, 200)
-        pygame.draw.rect(self.screen, COLORS["GRAY"],  battle_bg)
-        pygame.draw.rect(self.screen, COLORS["WHITE"], battle_bg, 3)
+    # --- Fondo de batalla por nivel ---
+    battle_rect = pygame.Rect(50, 50, SCREEN_WIDTH - 100, 200)
 
-        # Enemigo
-        enemy_x, enemy_y = SCREEN_WIDTH - 150, 120
-        if hasattr(enemy, "imagen") and enemy.imagen is not None:
-            if enemy.name == "Mihawk":
-                img = pygame.transform.scale(enemy.imagen, (120, 120))
-            else:
-                img = enemy.imagen
-            self.screen.blit(img, img.get_rect(center=(enemy_x, enemy_y)))
-        else:
-            pygame.draw.circle(self.screen, (100, 0, 100), (enemy_x, enemy_y), 40)
-            pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x - 10, enemy_y - 10), 8)
-            pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x + 10, enemy_y - 10), 8)
+    if not hasattr(self, '_battle_bgs'):
+        self._battle_bgs = {}
 
-        # Nombre del enemigo
-        self.screen.blit(
-            self.font_big.render(enemy.name, True, COLORS["WHITE"]),
-            (enemy_x - 50, enemy_y - 80)
-        )
+    nivel = getattr(self, 'nivel_actual', 1)
 
-        # Barra HP enemigo
-        self._draw_hp_bar(enemy_x - 75, enemy_y + 50, enemy.hp, enemy.max_hp)
-        self.screen.blit(
-            self.font.render(f"{enemy.hp}/{enemy.max_hp}", True, COLORS["WHITE"]),
-            (enemy_x - 30, enemy_y + 52)
-        )
-
-        # Jugador (sprite de combate)
-        player_x, player_y = 140, 210
+    if nivel not in self._battle_bgs:
+        bg_files = {1: "bg_mar.png", 2: "bg_desierto.png", 3: "bg_fortaleza.png"}
         try:
-            zoro = pygame.image.load("zoro_lucha.png").convert_alpha()
-            zoro = pygame.transform.scale(zoro, (120, 120))
-            self.screen.blit(zoro, zoro.get_rect(center=(player_x, player_y)))
+            img = pygame.image.load(os.path.join("assets", "battle_backgrounds", bg_files[nivel])).convert()
+            self._battle_bgs[nivel] = pygame.transform.scale(img, (SCREEN_WIDTH - 100, 200))
         except Exception:
-            pygame.draw.circle(self.screen, COLORS["RED"], (player_x, player_y), 25)
+            self._battle_bgs[nivel] = None
 
-        # Barra HP jugador
-        self._draw_hp_bar(player_x - 75, player_y + 40, player.hp, player.max_hp)
-        self.screen.blit(
-            self.font.render(f"{player.hp}/{player.max_hp}", True, COLORS["WHITE"]),
-            (player_x - 30, player_y + 42)
-        )
+    if self._battle_bgs.get(nivel):
+        self.screen.blit(self._battle_bgs[nivel], (50, 50))
+    else:
+        # Fallback: fondo dibujado con primitivas según nivel
+        if nivel == 1:  # Mar
+            pygame.draw.rect(self.screen, (10, 25, 55), battle_rect)
+            for i in range(6):
+                y = 170 + i * 14
+                color = (20, 60, 120) if i % 2 == 0 else (15, 45, 95)
+                pygame.draw.ellipse(self.screen, color, (50, y, SCREEN_WIDTH - 100, 20))
+        elif nivel == 2:  # Desierto
+            pygame.draw.rect(self.screen, (30, 12, 2), battle_rect)
+            pygame.draw.rect(self.screen, (100, 50, 10), pygame.Rect(50, 165, SCREEN_WIDTH - 100, 85))
+            pygame.draw.circle(self.screen, (255, 185, 60), (SCREEN_WIDTH - 110, 95), 28)
+        else:  # Fortaleza
+            pygame.draw.rect(self.screen, (10, 0, 18), battle_rect)
+            pygame.draw.rect(self.screen, (22, 12, 40), pygame.Rect(50, 185, SCREEN_WIDTH - 100, 65))
+            for b in range(8):
+                bx = 50 + b * ((SCREEN_WIDTH - 100) // 8)
+                pygame.draw.rect(self.screen, (26, 12, 42), pygame.Rect(bx + 2, 169, (SCREEN_WIDTH - 100) // 8 - 4, 16))
 
-        # Menú de combate
-        menu_rect = pygame.Rect(50, 300, SCREEN_WIDTH - 100, 130)
-        pygame.draw.rect(self.screen, COLORS["BLACK"], menu_rect)
-        pygame.draw.rect(self.screen, COLORS["WHITE"], menu_rect, 3)
+    pygame.draw.rect(self.screen, COLORS["WHITE"], battle_rect, 3)
 
-        self.screen.blit(self.font.render(message, True, COLORS["WHITE"]), (70, 320))
+    # --- Enemigo ---
+    enemy_x, enemy_y = SCREEN_WIDTH - 150, 110
+    if hasattr(enemy, "imagen") and enemy.imagen is not None:
+        if enemy.name == "Mihawk":
+            img = pygame.transform.scale(enemy.imagen, (120, 120))
+        else:
+            img = enemy.imagen
+        self.screen.blit(img, img.get_rect(center=(enemy_x, enemy_y)))
+    else:
+        pygame.draw.circle(self.screen, (100, 0, 100), (enemy_x, enemy_y), 40)
+        pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x - 10, enemy_y - 10), 8)
+        pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x + 10, enemy_y - 10), 8)
 
-        attack_color = COLORS["WHITE"] if battle_choice == 0 else COLORS["GRAY"]
-        flee_color   = COLORS["WHITE"] if battle_choice == 1 else COLORS["GRAY"]
-        self.screen.blit(self.font_big.render("ATACAR", True, attack_color), (70,  360))
-        self.screen.blit(self.font_big.render("HUIR",   True, flee_color),   (300, 360))
-        self.screen.blit(
-            self.font.render("Flechas: Seleccionar  |  ESPACIO: Confirmar", True, COLORS["GRAY"]),
-            (70, 400)
-        )
+    # Nombre del enemigo
+    self.screen.blit(
+        self.font_big.render(enemy.name, True, COLORS["WHITE"]),
+        (enemy_x - 50, enemy_y - 80)
+    )
+
+    # Barra HP enemigo
+    self._draw_hp_bar(enemy_x - 75, enemy_y + 50, enemy.hp, enemy.max_hp)
+    self.screen.blit(
+        self.font.render(f"{enemy.hp}/{enemy.max_hp}", True, COLORS["WHITE"]),
+        (enemy_x - 30, enemy_y + 52)
+    )
+
+    # --- Jugador ---
+    player_x, player_y = 140, 185
+    try:
+        zoro = pygame.image.load("zoro_lucha.png").convert_alpha()
+        zoro = pygame.transform.scale(zoro, (120, 120))
+        self.screen.blit(zoro, zoro.get_rect(center=(player_x, player_y)))
+    except Exception:
+        pygame.draw.circle(self.screen, COLORS["RED"], (player_x, player_y), 25)
+
+    # Nombre del jugador (debajo del sprite)
+    self.screen.blit(
+        self.font.render(player.name, True, (160, 210, 255)),
+        (player_x - 20, player_y + 35)
+    )
+
+    # Barra HP jugador (debajo del nombre)
+    self._draw_hp_bar(player_x - 55, player_y + 52, player.hp, player.max_hp)
+    self.screen.blit(
+        self.font.render(f"{player.hp}/{player.max_hp}", True, COLORS["WHITE"]),
+        (player_x - 20, player_y + 54)
+    )
+
+    # --- Menú de combate ---
+    menu_rect = pygame.Rect(50, 300, SCREEN_WIDTH - 100, 130)
+    pygame.draw.rect(self.screen, COLORS["BLACK"], menu_rect)
+    pygame.draw.rect(self.screen, COLORS["WHITE"], menu_rect, 3)
+
+    self.screen.blit(self.font.render(message, True, COLORS["WHITE"]), (70, 320))
+
+    attack_color = COLORS["WHITE"] if battle_choice == 0 else COLORS["GRAY"]
+    flee_color   = COLORS["WHITE"] if battle_choice == 1 else COLORS["GRAY"]
+    self.screen.blit(self.font_big.render("ATACAR", True, attack_color), (70,  360))
+    self.screen.blit(self.font_big.render("HUIR",   True, flee_color),   (300, 360))
+    self.screen.blit(
+        self.font.render("Flechas: Seleccionar  |  ESPACIO: Confirmar", True, COLORS["GRAY"]),
+        (70, 400)
+    )
 
     # ------------------------------------------------------------------
     # Intro
