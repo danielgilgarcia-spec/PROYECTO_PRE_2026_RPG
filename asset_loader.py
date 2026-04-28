@@ -8,7 +8,7 @@ Uso:
 """
 
 import pygame
-from defined import TILE_SIZE
+from defined import TILE_SIZE, SCREEN_WIDTH
 
 
 class AssetLoader:
@@ -18,7 +18,7 @@ class AssetLoader:
         self.tile_size = tile_size
 
         # Tiles del overworld
-        self.overworld  = None
+        self.overworld   = None
         self.tile_grass  = None
         self.tile_path   = None
         self.tile_water  = None
@@ -29,6 +29,9 @@ class AssetLoader:
         # Sprite del árbol
         self.tree_image  = None
 
+        # Fondos de batalla por nivel
+        self.battle_bg   = {1: None, 2: None, 3: None}
+
         self._load_all()
 
     # ------------------------------------------------------------------
@@ -38,6 +41,7 @@ class AssetLoader:
         self._load_tree()
         self._load_overworld_tileset()
         self._load_individual_tiles()
+        self._load_battle_backgrounds()
 
     def _load_tree(self):
         """Carga el sprite del árbol con fallback."""
@@ -76,6 +80,21 @@ class AssetLoader:
                 setattr(self, attr, pygame.transform.scale(img, (self.tile_size, self.tile_size)))
             except Exception:
                 pass
+
+    def _load_battle_backgrounds(self):
+        """Carga y escala los fondos de batalla para cada nivel con fallback a None."""
+        size = (SCREEN_WIDTH - 100, 200)
+        files = {
+            1: "assets/battle_backgrounds/bg_mar.png",
+            2: "assets/battle_backgrounds/bg_desierto.png",
+            3: "assets/battle_backgrounds/bg_fortaleza.png",
+        }
+        for nivel, path in files.items():
+            try:
+                img = pygame.image.load(path).convert()
+                self.battle_bg[nivel] = pygame.transform.scale(img, size)
+            except Exception:
+                self.battle_bg[nivel] = None
 
     # ------------------------------------------------------------------
     # Helpers
