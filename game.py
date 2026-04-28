@@ -172,30 +172,30 @@ class Game:
                 self.message = self.battle.message
                 self.state   = BATTLE
 
-   def _handle_exit(self):
-    # Nivel 1 -> Nivel 2
-    if self.current_map is game_map_1:
-        self.current_map = game_map_2
-        self.player.x = 5
-        self.player.y = 5
-        self.message = "¡Has llegado a una nueva isla..."
-        self.dialog_timer = pygame.time.get_ticks()
-        self.pending_boss = True
-        pygame.time.wait(500)
+    def _handle_exit(self):
+        # Nivel 1 -> Nivel 2
+        if self.current_map is game_map_1:
+            self.current_map = game_map_2
+            self.player.x = 5
+            self.player.y = 5
+            self.message = "¡Has llegado a una nueva isla..."
+            self.dialog_timer = pygame.time.get_ticks()
+            self.pending_boss = True
+            pygame.time.wait(500)
 
-    # Nivel 2 -> Nivel 3
-    elif self.current_map is game_map_2:
-        self.current_map = game_map_3
-        self.player.x = 5
-        self.player.y = 5
-        self.message = "Una presencia poderosa te espera..."
-        self.dialog_timer = pygame.time.get_ticks()
-        self.pending_boss = True
-        pygame.time.wait(500)
+        # Nivel 2 -> Nivel 3
+        elif self.current_map is game_map_2:
+            self.current_map = game_map_3
+            self.player.x = 5
+            self.player.y = 5
+            self.message = "Una presencia poderosa te espera..."
+            self.dialog_timer = pygame.time.get_ticks()
+            self.pending_boss = True
+            pygame.time.wait(500)
 
-    # Final del juego
-    else:
-        self.message = "¡Nivel completado!"
-        pygame.time.wait(800)
-        self.state = EXIT
+        # Final del juego
+        else:
+            self.message = "¡Nivel completado!"
+            pygame.time.wait(800)
+            self.state = EXIT
 
