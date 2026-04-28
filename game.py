@@ -12,6 +12,11 @@ from defined import TILE_SIZE, INTRO, EXPLORING, BATTLE, EXIT
 from maps import game_map_1, game_map_2, game_map_3
 from Player import Player
 from randomEnemies1 import RandomEnemy
+from randomEnemies2 import RandomEnemy
+from randomEnemies3 import RandomEnemy
+from Enemy_final_1 import Enemy
+from Enemy_final_2 import Enemy
+from Enemy_final_3 import Enemy
 from menu import add_player_record
 from asset_loader import AssetLoader
 from camera import Camera
@@ -56,6 +61,12 @@ class Game:
         self.camera   = Camera()
         self.renderer = Renderer(screen, self.assets, self.font, self.font_big)
         self.battle   = BattleSystem()
+
+        # variables para control de diálogos y malos finales de nivel
+
+        self.dialog_timer = 0
+        self.pending_boss = False
+
 
     # ------------------------------------------------------------------
     # Loop principal
@@ -136,6 +147,18 @@ class Game:
         if self.current_map[self.player.y][self.player.x] == 5:
             self._handle_exit()
 
+        # Si hay malo final pendiente, mostrar diálogo y luego batalla
+        if self.pending_boss:
+            tiempo_actual = pygame.time.get_ticks()
+
+            if tiempo_actual - self.dialog_timer > 2000:
+                self.enemy = Enemy(self.player.level)  # boss final
+                self.battle.start(self.enemy, self.difficulty)
+                self.message = f"¡{self.enemy.name} aparece!"
+                self.state = BATTLE
+                self.pending_boss = False
+
+
         self.renderer.draw_exploring(
             self.player, self.player_name, self.difficulty,
             self.current_map, self.camera, self.message
@@ -149,20 +172,30 @@ class Game:
                 self.message = self.battle.message
                 self.state   = BATTLE
 
-    def _handle_exit(self):
-        if self.current_map is game_map_1:
-            self.current_map = game_map_2
-            self.player.x    = 5
-            self.player.y    = 5
-            self.message     = "¡Nivel 2 cargado!"
-            pygame.time.wait(800)
-        elif self.current_map is game_map_2:
-            self.current_map = game_map_3
-            self.player.x    = 5
-            self.player.y    = 5
-            self.message     = "¡Nivel 3 cargado!"
-            pygame.time.wait(800)   
-        else:
-            self.message = "¡Nivel completado!"
-            pygame.time.wait(800)
-            self.state = EXIT
+   def _handle_exit(self):
+    # Nivel 1 -> Nivel 2
+    if self.current_map is game_map_1:
+        self.current_map = game_map_2
+        self.player.x = 5
+        self.player.y = 5
+        self.message = "¡Has llegado a una nueva isla..."
+        self.dialog_timer = pygame.time.get_ticks()
+        self.pending_boss = True
+        pygame.time.wait(500)
+
+    # Nivel 2 -> Nivel 3
+    elif self.current_map is game_map_2:
+        self.current_map = game_map_3
+        self.player.x = 5
+        self.player.y = 5
+        self.message = "Una presencia poderosa te espera..."
+        self.dialog_timer = pygame.time.get_ticks()
+        self.pending_boss = True
+        pygame.time.wait(500)
+
+    # Final del juego
+    else:
+        self.message = "¡Nivel completado!"
+        pygame.time.wait(800)
+        self.state = EXIT
+
