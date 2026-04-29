@@ -7,14 +7,14 @@ class RandomEnemy1:
     def __init__(self, level):
         enemy_types = [
             {
-                "name": "Gohst_1",
+                "name": "fANTASMA",
                 "hp": 30,
                 "atk": 8,
                 "exp": 20,
                 "image": "assets/enemies/Gohst_1.png"
             },
             {
-                "name": "Bat_1",
+                "name": "MURCIELAGO",
                 "hp": 50,
                 "atk": 12,
                 "exp": 35,

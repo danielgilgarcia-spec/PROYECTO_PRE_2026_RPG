@@ -3,18 +3,18 @@ import random
 
 
 class RandomEnemy3:
-    
+
     def __init__(self, level):
         enemy_types = [
             {
-                "name": "Dragon_1",
+                "name": "DRAGON",
                 "hp": 30,
                 "atk": 8,
                 "exp": 20,
                 "image": "assets/enemies/Dragon_1.png"
             },
             {
-                "name": "Goblin_1",
+                "name": "GOBLIN",
                 "hp": 50,
                 "atk": 12,
                 "exp": 35,
