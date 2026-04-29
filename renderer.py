@@ -9,7 +9,10 @@ import random
 import pygame
 
 from defined import COLORS, SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE
-from text import INTRO_SCREENS
+from text import INTRO_SCREENS, ENEMY1_DIALOG_PRE, ENEMY1_DIALOG_POST, ENEMY2_DIALOG_PRE, ENEMY2_DIALOG_POST, ENEMY3_DIALOG_PRE, ENEMY3_DIALOG_POST
+from Enemy_final_1 import Enemy1
+from Enemy_final_2 import Enemy2
+from Enemy_final_3 import Enemy3
 
 
 class Renderer:

@@ -1,7 +1,7 @@
 import pygame
 
 
-class Enemy:
+class Enemy3:
     def __init__(self, level):
 
         enemy = {
