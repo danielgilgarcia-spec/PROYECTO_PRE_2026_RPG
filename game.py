@@ -11,9 +11,9 @@ import sys
 from defined import TILE_SIZE, INTRO, EXPLORING, BATTLE, EXIT
 from maps import game_map_1, game_map_2, game_map_3
 from Player import Player
-from randomEnemies1 import RandomEnemy
-from randomEnemies2 import RandomEnemy
-from randomEnemies3 import RandomEnemy
+from randomEnemies1 import RandomEnemy1
+from randomEnemies2 import RandomEnemy2
+from randomEnemies3 import RandomEnemy3
 from Enemy_final_1 import Enemy
 from Enemy_final_2 import Enemy
 from Enemy_final_3 import Enemy
@@ -54,7 +54,18 @@ class Game:
         self.player.attack  = self.difficulty["player_atk"]
 
         # Enemigo (se renueva en cada encuentro)
-        self.enemy = RandomEnemy(self.player.level)
+                # Nivel 1 -> Nivel 2
+        if self.current_map is game_map_1:
+            self.enemy = RandomEnemy1(self.player.level)
+
+        # Nivel 2 -> Nivel 3
+        elif self.current_map is game_map_2:
+            self.enemy = RandomEnemy2(self.player.level)
+
+        # Final del juego
+        else:
+            self.enemy = RandomEnemy3(self.player.level)
+        
 
         # Módulos
         self.assets   = AssetLoader(TILE_SIZE)
@@ -167,7 +178,18 @@ class Game:
     def _check_random_encounter(self):
         if self.current_map[self.player.y][self.player.x] == 0:
             if random.random() < self.difficulty["encounter_rate"]:
-                self.enemy = RandomEnemy(self.player.level)
+                        # Nivel 1 -> Nivel 2
+                if self.current_map is game_map_1:
+                    self.enemy = RandomEnemy1(self.player.level)
+
+                         # Nivel 2 -> Nivel 3
+                elif self.current_map is game_map_2:
+                    self.enemy = RandomEnemy2(self.player.level)
+
+                        # Final del juego
+                else:
+                    self.enemy = RandomEnemy3(self.player.level)
+
                 self.battle.start(self.enemy, self.difficulty)
                 self.message = self.battle.message
                 self.state   = BATTLE
