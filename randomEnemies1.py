@@ -2,16 +2,16 @@ import pygame
 import random
 
 
-class RandomEnemy:
+class RandomEnemy1:
 
     def __init__(self, level):
         enemy_types = [
             {
-                "name": "Lobo_1",
+                "name": "Gohst_1",
                 "hp": 30,
                 "atk": 8,
                 "exp": 20,
-                "image": "assets/enemies/Lobo_1.png"
+                "image": "assets/enemies/Gohst_1.png"
             },
             {
                 "name": "Bat_1",
@@ -31,15 +31,11 @@ class RandomEnemy:
         self.attack = enemy["atk"] + level
         self.exp_reward = enemy["exp"]
 
-        # Ruta de imagen correspondiente
-        img_file = enemy["image"]
-
         try:
-            # IMPORTANTE:
-            # pygame.display.set_mode(...) debe haberse ejecutado antes
-            self.image = pygame.image.load(img_file).convert_alpha()
-            print(f"Imagen cargada correctamente: {img_file}")
+            img = pygame.image.load(enemy["image"]).convert_alpha()
+            self.imagen = pygame.transform.scale(img, (100, 100))
+            print(f"Imagen cargada correctamente: {enemy['image']}")
 
         except Exception as e:
-            print(f"Error cargando imagen {img_file}: {e}")
-            self.image = None
+            print(f"Error cargando imagen {enemy['image']}: {e}")
+            self.imagen = None

@@ -5,8 +5,9 @@ battle.py  –  Lógica de combate por turnos.
 import random
 import pygame
 
-from randomEnemies1 import RandomEnemy
-
+from randomEnemies1 import RandomEnemy1
+from randomEnemies2 import RandomEnemy2
+from randomEnemies3 import RandomEnemy3
 
 class BattleSystem:
     """Gestiona toda la lógica de un combate por turnos."""
@@ -18,7 +19,7 @@ class BattleSystem:
     # ------------------------------------------------------------------
     # Inicio de batalla
     # ------------------------------------------------------------------
-    def start(self, enemy: RandomEnemy, difficulty: dict):
+    def start(self, enemy: RandomEnemy1, difficulty: dict):
         mult = difficulty["enemy_mult"]
         enemy.max_hp = int(enemy.max_hp * mult)
         enemy.hp     = enemy.max_hp

@@ -19,6 +19,8 @@ class Renderer:
         self.font      = font
         self.font_big  = font_big
         self._loaded_intro_images: dict = {}
+        self._zoro_img = None  
+
 
     # ------------------------------------------------------------------
     # Tiles
@@ -127,6 +129,8 @@ class Renderer:
         self.screen.fill(COLORS["BLACK"])
 
         # --- Fondo de batalla por nivel ---
+        # El recuadro va de y=50 a y=250 (altura 200)
+
         battle_rect = pygame.Rect(50, 50, SCREEN_WIDTH - 100, 200)
         nivel = getattr(self, 'nivel_actual', 1)
 
@@ -134,13 +138,13 @@ class Renderer:
         if bg:
             self.screen.blit(bg, (50, 50))
         else:
-            # Fallback: fondo dibujado con primitivas según nivel
+            # Fallback: fondo con primitivas según nivel
             if nivel == 1:  # Mar
                 pygame.draw.rect(self.screen, (10, 25, 55), battle_rect)
                 for i in range(6):
-                    y = 170 + i * 14
+                    wy = 170 + i * 14
                     color = (20, 60, 120) if i % 2 == 0 else (15, 45, 95)
-                    pygame.draw.ellipse(self.screen, color, (50, y, SCREEN_WIDTH - 100, 20))
+                    pygame.draw.ellipse(self.screen, color, (50, wy, SCREEN_WIDTH - 100, 20))
             elif nivel == 2:  # Desierto
                 pygame.draw.rect(self.screen, (30, 12, 2), battle_rect)
                 pygame.draw.rect(self.screen, (100, 50, 10), pygame.Rect(50, 165, SCREEN_WIDTH - 100, 85))
@@ -154,8 +158,11 @@ class Renderer:
 
         pygame.draw.rect(self.screen, COLORS["WHITE"], battle_rect, 3)
 
-        # --- Enemigo ---
-        enemy_x, enemy_y = SCREEN_WIDTH - 150, 110
+                # --- Enemigo (derecha, centrado verticalmente en el recuadro 50-250) ---
+        enemy_x = SCREEN_WIDTH - 160
+        enemy_y = 148  # centro vertical del recuadro
+
+
         if hasattr(enemy, "imagen") and enemy.imagen is not None:
             if enemy.name == "Mihawk":
                 img = pygame.transform.scale(enemy.imagen, (120, 120))
@@ -167,39 +174,44 @@ class Renderer:
             pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x - 10, enemy_y - 10), 8)
             pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x + 10, enemy_y - 10), 8)
 
-        # Nombre del enemigo
-        self.screen.blit(
-            self.font_big.render(enemy.name, True, COLORS["WHITE"]),
-            (enemy_x - 50, enemy_y - 80)
-        )
+                # Nombre del enemigo (dentro del recuadro, arriba a la derecha)
+        name_surf = self.font_big.render(enemy.name, True, COLORS["WHITE"])
+        self.screen.blit(name_surf, (enemy_x - name_surf.get_width() // 2, 58))
+
 
         # Barra HP enemigo
-        self._draw_hp_bar(enemy_x - 75, enemy_y + 50, enemy.hp, enemy.max_hp)
+        self._draw_hp_bar(enemy_x - 75, enemy_y + 58, enemy.hp, enemy.max_hp)
         self.screen.blit(
             self.font.render(f"{enemy.hp}/{enemy.max_hp}", True, COLORS["WHITE"]),
-            (enemy_x - 30, enemy_y + 52)
+            (enemy_x - 25, enemy_y + 60)
         )
+       # --- Jugador (izquierda, centrado verticalmente en el recuadro) ---
+        player_x = 140
+        player_y = 140
 
-        # --- Jugador ---
-        player_x, player_y = 140, 185
-        try:
-            zoro = pygame.image.load("zoro_lucha.png").convert_alpha()
-            zoro = pygame.transform.scale(zoro, (120, 120))
-            self.screen.blit(zoro, zoro.get_rect(center=(player_x, player_y)))
-        except Exception:
-            pygame.draw.circle(self.screen, COLORS["RED"], (player_x, player_y), 25)
+        # Cargar sprite de Zoro una sola vez (cache)
+        if self._zoro_img is None:
+            try:
+                img = pygame.image.load("assets/big_enemies/zoro_lucha.png").convert_alpha()
+                self._zoro_img = pygame.transform.scale(img, (110, 110))
+            except Exception as e:
+                print(f"Error cargando zoro_lucha: {e}")
+                self._zoro_img = False  # False = fallido, no reintentar
 
-        # Nombre del jugador (debajo del sprite)
-        self.screen.blit(
-            self.font.render(player.name, True, (160, 210, 255)),
-            (player_x - 20, player_y + 35)
-        )
+        if self._zoro_img:
+            self.screen.blit(self._zoro_img, self._zoro_img.get_rect(center=(player_x, player_y)))
+        else:
+            pygame.draw.circle(self.screen, COLORS["RED"], (player_x, player_y), 30)
 
-        # Barra HP jugador (debajo del nombre)
-        self._draw_hp_bar(player_x - 55, player_y + 52, player.hp, player.max_hp)
+        # Nombre del jugador debajo del sprite
+        name_p = self.font.render(player.name, True, (160, 210, 255))
+        self.screen.blit(name_p, (player_x - name_p.get_width() // 2, player_y + 58))
+
+        # Barra HP jugador debajo del nombre
+        self._draw_hp_bar(player_x - 55, player_y + 75, player.hp, player.max_hp)
         self.screen.blit(
             self.font.render(f"{player.hp}/{player.max_hp}", True, COLORS["WHITE"]),
-            (player_x - 20, player_y + 54)
+            (player_x - 20, player_y + 77)
         )
 
         # --- Menú de combate ---

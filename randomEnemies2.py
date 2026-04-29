@@ -2,7 +2,8 @@ import pygame
 import random
 
 
-class RandomEnemy:
+class RandomEnemy2:
+
     def __init__(self, level):
         enemy_types = [
             {
@@ -31,10 +32,10 @@ class RandomEnemy:
         self.exp_reward = enemy["exp"]
 
         try:
-            # Cargar únicamente la imagen del enemigo elegido aleatoriamente
-            self.image = pygame.image.load(enemy["image"]).convert_alpha()
+            img = pygame.image.load(enemy["image"]).convert_alpha()
+            self.imagen = pygame.transform.scale(img, (100, 100))
             print(f"Imagen cargada correctamente: {enemy['image']}")
 
         except Exception as e:
-            print(f"Error cargando imagen: {e}")
-            self.image = None
+            print(f"Error cargando imagen {enemy['image']}: {e}")
+            self.imagen = None
