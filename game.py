@@ -84,20 +84,23 @@ class Game:
         self._mini_imgs = self._load_mini_images()
 
         # Diálogo
-        self.dialog_screens  = []   # lista de pantallas activa
-        self.dialog_index    = 0    # pantalla actual dentro del diálogo
-        self.dialog_timer    = 0
-        self.dialog_next_state = EXPLORING  # estado al terminar el diálogo
+        self.dialog_screens    = []
+        self.dialog_index      = 0
+        self.dialog_timer      = 0
+        self.dialog_next_state = EXPLORING
 
         # Música
         pygame.mixer.init()
-        music.play(music.MUSIC_STORY)   # intro arranca con música de historia
+        music.play(music.MUSIC_STORY)
+
+        # Control de espacio (evitar repetición)
+        self._space_was_pressed = False
 
     # ------------------------------------------------------------------
     # Carga de mini-imágenes de jefes
     # ------------------------------------------------------------------
     def _load_mini_images(self):
-        imgs = {}
+        imgs  = {}
         paths = {
             1: "assets/big_enemies/mihawk.png",
             2: "assets/big_enemies/pica.png",
@@ -120,15 +123,17 @@ class Game:
         self.dialog_index      = 0
         self.dialog_timer      = 0
         self.dialog_next_state = next_state
-        self.state             = DIALOG_PRE if next_state == BATTLE else DIALOG_POST
+        if next_state == BATTLE:
+            self.state = DIALOG_PRE
+        else:
+            self.state = DIALOG_POST
         music.play(music.MUSIC_STORY)
 
     # ------------------------------------------------------------------
     # Loop principal
     # ------------------------------------------------------------------
     def run(self):
-        running       = True
-        space_pressed = False
+        running = True
 
         while running:
             for event in pygame.event.get():
@@ -136,43 +141,21 @@ class Game:
                     running = False
 
             keys = pygame.key.get_pressed()
+            space_pressed = keys[pygame.K_SPACE]
+            space_just_pressed = space_pressed and not self._space_was_pressed
+            self._space_was_pressed = space_pressed
 
             if self.state == INTRO:
-                self._update_intro(keys, space_pressed)
-                space_pressed = not keys[pygame.K_SPACE]
+                self._update_intro(keys, space_just_pressed)
 
             elif self.state == EXPLORING:
                 self._update_exploring(keys)
 
             elif self.state == BATTLE:
-                result = self.battle.handle_input(keys, self.player, self.enemy)
-                self.message = self.battle.message
-
-                if result == "win":
-                    # Jefe derrotado → diálogo post
-                    pre_map = {
-                        1: ENEMY1_DIALOG_POST,
-                        2: ENEMY2_DIALOG_POST,
-                        3: ENEMY3_DIALOG_POST,
-                    }
-                    post_screens = pre_map.get(self.nivel_actual, [])
-                    if post_screens:
-                        self._start_dialog(post_screens, EXPLORING)
-                        self.state = DIALOG_POST
-                    else:
-                        self._after_boss_dialog()
-
-                elif result == "exploring":
-                    self.state = EXPLORING
-                    music.play(music.MUSIC_EXPLORE)
-
-                self.renderer.draw_battle(
-                    self.player, self.enemy, self.message, self.battle.choice
-                )
+                self._update_battle(keys)
 
             elif self.state in (DIALOG_PRE, DIALOG_POST, FINAL_DIALOG):
-                self._update_dialog(keys, space_pressed)
-                space_pressed = not keys[pygame.K_SPACE]
+                self._update_dialog(keys, space_just_pressed)
 
             elif self.state == EXIT:
                 add_player_record(self.player_name, self.player.level, self.difficulty["name"])
@@ -188,12 +171,11 @@ class Game:
     # ------------------------------------------------------------------
     # Updates por estado
     # ------------------------------------------------------------------
-    def _update_intro(self, keys, space_pressed: bool):
+    def _update_intro(self, keys, space_just_pressed: bool):
         self.intro_timer += 1
-        if keys[pygame.K_SPACE] and not space_pressed:
+        if space_just_pressed:
             self.intro_screen += 1
             self.intro_timer   = 0
-            pygame.time.wait(200)
 
         finished = self.renderer.draw_intro(self.intro_screen, self.intro_timer)
         if finished:
@@ -216,13 +198,14 @@ class Game:
             self._check_random_encounter()
 
         # Curación en casa
-        if self.current_map[self.player.y][self.player.x] == 4 and keys[pygame.K_SPACE]:
+        tile_actual = self.current_map[self.player.y][self.player.x]
+        if tile_actual == 4 and keys[pygame.K_SPACE]:
             self.player.heal()
             self.message = "¡Te curaste en la casa! HP restaurado."
-            pygame.time.wait(1000)
+            pygame.time.wait(500)
 
         # Salida al siguiente nivel
-        if self.current_map[self.player.y][self.player.x] == 5:
+        if tile_actual == 5:
             self._handle_exit()
 
         self.renderer.draw_exploring(
@@ -231,20 +214,54 @@ class Game:
             mini_imgs=self._mini_imgs, nivel=self.nivel_actual
         )
 
-    def _update_dialog(self, keys, space_pressed: bool):
+    def _update_battle(self, keys):
+        result = self.battle.handle_input(keys, self.player, self.enemy)
+        self.message = self.battle.message
+
+        # Dibujar SIEMPRE la pantalla de batalla (incluso durante esperas)
+        self.renderer.draw_battle(
+            self.player, self.enemy, self.message, self.battle.choice
+        )
+
+        if result == "win":
+            # Enemigo derrotado → comprobar si es jefe o aleatorio
+            post_map = {
+                1: ENEMY1_DIALOG_POST,
+                2: ENEMY2_DIALOG_POST,
+                3: ENEMY3_DIALOG_POST,
+            }
+            # Solo lanzar diálogo post si el enemigo es un jefe (Enemy1/2/3)
+            from Enemy_final_1 import Enemy1
+            from Enemy_final_2 import Enemy2
+            from Enemy_final_3 import Enemy3
+            if isinstance(self.enemy, (Enemy1, Enemy2, Enemy3)):
+                post_screens = post_map.get(self.nivel_actual, [])
+                if post_screens:
+                    self._start_dialog(post_screens, EXPLORING)
+                    self.state = DIALOG_POST
+                else:
+                    self._after_boss_dialog()
+            else:
+                # Enemigo aleatorio: volver a explorar
+                self.state = EXPLORING
+                music.play(music.MUSIC_EXPLORE)
+
+        elif result == "exploring":
+            self.state = EXPLORING
+            music.play(music.MUSIC_EXPLORE)
+
+    def _update_dialog(self, keys, space_just_pressed: bool):
         self.dialog_timer += 1
 
-        if keys[pygame.K_SPACE] and not space_pressed:
+        if space_just_pressed:
             self.dialog_index += 1
             self.dialog_timer  = 0
-            pygame.time.wait(200)
 
         if self.dialog_index >= len(self.dialog_screens):
-            # Diálogo terminado
             if self.state == DIALOG_PRE:
                 # Lanzar batalla contra el jefe
-                boss_map = {1: Enemy1, 2: Enemy2, 3: Enemy3}
-                BossClass = boss_map[self.nivel_actual]
+                boss_map   = {1: Enemy1, 2: Enemy2, 3: Enemy3}
+                BossClass  = boss_map[self.nivel_actual]
                 self.enemy = BossClass(self.player.level)
                 self.battle.start(self.enemy, self.difficulty)
                 self.message = f"¡{self.enemy.name} aparece!"
@@ -263,23 +280,23 @@ class Game:
     def _after_boss_dialog(self):
         """Lógica tras terminar el diálogo post-jefe."""
         if self.nivel_actual == 1:
-            self.nivel_actual  = 2
-            self.current_map   = self.map_2
-            self.player.x      = 5
-            self.player.y      = 5
+            self.nivel_actual          = 2
+            self.current_map           = self.map_2
+            self.player.x              = 5
+            self.player.y              = 5
             self.renderer.nivel_actual = 2
-            self.message       = "¡Has llegado a una nueva isla!"
-            self.state         = EXPLORING
+            self.message               = "¡Has llegado a una nueva isla!"
+            self.state                 = EXPLORING
             music.play(music.MUSIC_EXPLORE)
 
         elif self.nivel_actual == 2:
-            self.nivel_actual  = 3
-            self.current_map   = self.map_3
-            self.player.x      = 5
-            self.player.y      = 5
+            self.nivel_actual          = 3
+            self.current_map           = self.map_3
+            self.player.x              = 5
+            self.player.y              = 5
             self.renderer.nivel_actual = 3
-            self.message       = "Una presencia poderosa te espera..."
-            self.state         = EXPLORING
+            self.message               = "Una presencia poderosa te espera..."
+            self.state                 = EXPLORING
             music.play(music.MUSIC_EXPLORE)
 
         else:
@@ -288,7 +305,8 @@ class Game:
             self.state = FINAL_DIALOG
 
     def _check_random_encounter(self):
-        if self.current_map[self.player.y][self.player.x] == 0:
+        tile = self.current_map[self.player.y][self.player.x]
+        if tile == 0:
             if random.random() < self.difficulty["encounter_rate"]:
                 EnemyClass = {1: RandomEnemy1, 2: RandomEnemy2, 3: RandomEnemy3}
                 self.enemy = EnemyClass[self.nivel_actual](self.player.level)
@@ -307,11 +325,9 @@ class Game:
         screens = pre_map.get(self.nivel_actual, [])
         if screens:
             self._start_dialog(screens, BATTLE)
-            self.state = DIALOG_PRE
         else:
-            # Sin diálogo: lanzar jefe directamente
-            boss_map = {1: Enemy1, 2: Enemy2, 3: Enemy3}
-            BossClass = boss_map[self.nivel_actual]
+            boss_map   = {1: Enemy1, 2: Enemy2, 3: Enemy3}
+            BossClass  = boss_map[self.nivel_actual]
             self.enemy = BossClass(self.player.level)
             self.battle.start(self.enemy, self.difficulty)
             self.message = f"¡{self.enemy.name} aparece!"
