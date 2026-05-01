@@ -21,7 +21,7 @@ MUSIC_STORY    = "story"
 MUSIC_DIALOGUE = "dialogue"
 
 _TRACKS = {
-    MUSIC_MENU:     "assets/music/music_menu.mp3",
+    MUSIC_MENU:     "assets/music/music_menu.ogg",
     MUSIC_EXPLORE:  "assets/music/music_explore.mp3",
     MUSIC_BATTLE:   "assets/music/music_battle.wav",
     MUSIC_STORY:    "assets/music/music_story.ogg",
