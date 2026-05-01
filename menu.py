@@ -124,7 +124,7 @@ class MainMenu:
         self.diff_cursor_timer = 0
 
         # Menú principal
-        self.main_options   = ["Jugar", "Historial", "Salir"]
+        self.main_options = ["Jugar", "Settings", "Historial", "Salir"]
         self.main_cursor    = 0
         self.key_cooldown   = 0
 

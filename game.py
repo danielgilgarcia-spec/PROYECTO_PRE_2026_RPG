@@ -125,7 +125,7 @@ class Game:
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    return None  # ← IMPORTANTE
 
             keys               = pygame.key.get_pressed()
             space_pressed      = keys[pygame.K_SPACE]
@@ -141,15 +141,18 @@ class Game:
             elif self.state in (DIALOG_PRE, DIALOG_POST, FINAL_DIALOG):
                 self._update_dialog(keys, space_just_pressed)
             elif self.state == EXIT:
-                add_player_record(self.player_name, self.player.level, self.difficulty["name"])
-                pygame.quit()
-                sys.exit()
+                add_player_record(
+                    self.player_name,
+                    self.player.level,
+                    self.difficulty["name"]
+                )
+                return {"level": self.player.level}
 
             pygame.display.flip()
             self.clock.tick(60)
 
-        pygame.quit()
-        sys.exit()
+        return None  # ← por seguridad
+
 
     # ------------------------------------------------------------------
     def _update_intro(self, keys, space_just_pressed):
