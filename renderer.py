@@ -318,7 +318,7 @@ class Renderer:
             self.screen.blit(glow_surf, (SCREEN_WIDTH // 2 - 100, 100))
 
     # ------------------------------------------------------------------
-    # Diálogo con caché de imágenes
+    # Diálogo con imágenes
     # ------------------------------------------------------------------
     def draw_dialog(self, screen_data: dict, timer: int):
         self.screen.fill(COLORS["BLACK"])
