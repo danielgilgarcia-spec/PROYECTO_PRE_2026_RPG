@@ -18,21 +18,38 @@ class BattleSystem:
         self.message = ""
         self._wait   = 0
         self._pending_result = None  # resultado que se enviará tras la espera
+        self._input_cooldown = 0    # frames de gracia al iniciar batalla
 
     # ------------------------------------------------------------------
     def start(self, enemy, difficulty: dict):
-        """Inicia una batalla. Solo aplica multiplicador si no se ha aplicado ya."""
-        mult         = difficulty["enemy_mult"]
-        enemy.max_hp = int(enemy.max_hp * mult)
+        """Inicia una batalla. Aplica el multiplicador sobre los stats base
+        guardados en el enemigo, nunca acumulativamente."""
+        mult = difficulty["enemy_mult"]
+
+        # Guardar stats base la primera vez para no multiplicar varias veces
+        if not hasattr(enemy, "_base_max_hp"):
+            enemy._base_max_hp = enemy.max_hp
+            enemy._base_attack = enemy.attack
+
+        enemy.max_hp = int(enemy._base_max_hp * mult)
         enemy.hp     = enemy.max_hp
-        enemy.attack = int(enemy.attack * mult)
+        enemy.attack = int(enemy._base_attack * mult)
+
         self.choice          = 0
         self.message         = f"¡{enemy.name} aparece!"
         self._wait           = 0
-        self._pending_result = None   # <-- reseteo crítico
+        self._pending_result = None
+        # Cooldown de 20 frames (~0.33s) para ignorar cualquier tecla que
+        # venga arrastrada del diálogo previo o de la exploración.
+        self._input_cooldown = 20
 
     # ------------------------------------------------------------------
     def handle_input(self, keys, player, enemy) -> str:
+        # Cooldown inicial: ignorar todo input durante los primeros frames
+        if self._input_cooldown > 0:
+            self._input_cooldown -= 1
+            return "continue"
+
         # Si estamos en periodo de espera, contar frames y luego devolver resultado
         if self._pending_result is not None:
             if self._wait > 0:
@@ -94,7 +111,7 @@ class BattleSystem:
 
     @staticmethod
     def _check_levelup(player):
-        if player.exp >= player.level * 100:
+        while player.exp >= player.level * 100:
             player.level  += 1
             player.max_hp += 20
             player.hp      = player.max_hp

@@ -1,9 +1,7 @@
 # Estados del juego
-
 INTRO         = "intro"
 EXPLORING     = "exploring"
 BATTLE        = "battle"
-DIALOGUE      = "dialogue"
 DIALOG_PRE    = "dialog_pre"    # Diálogo antes del jefe
 DIALOG_POST   = "dialog_post"   # Diálogo después del jefe
 FINAL_DIALOG  = "final_dialog"  # Cierre final tras vencer al jefe del nivel 3

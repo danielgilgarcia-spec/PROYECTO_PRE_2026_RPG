@@ -7,11 +7,8 @@ import pygame
 import os
 import sys
 from player_history import PLAYER_HISTORY
-from defined import COLORS, DIFFICULTIES
+from defined import COLORS, DIFFICULTIES, SCREEN_WIDTH, SCREEN_HEIGHT
 
-
-SCREEN_WIDTH  = 640
-SCREEN_HEIGHT = 560
 MAX_NAME_LEN = 12
 
 
@@ -95,10 +92,12 @@ def draw_stars(surface, t):
 class MainMenu:
     """
     Estados:
-        MAIN     > menú principal (Jugar / Historial / Salir)
-        NAME     > entrada de nombre
-        DIFF     > selección de dificultad
+        MAIN     > menú principal (Jugar / Settings / Historial / Salir)
+
+        JUGAR -> NAME     > entrada de nombre
+        SETTINGS -> DIFF     > selección de dificultad
         HISTORY  > historial de jugadores
+        SALIR     > cierra el juego
     """
 
     def __init__(self, screen):
@@ -122,7 +121,7 @@ class MainMenu:
         self.diff_cursor_timer = 0
 
         # Menú principal
-        self.main_options   = ["Jugar", "Historial", "Salir"]
+        self.main_options = ["Jugar", "Settings", "Historial", "Salir"]
         self.main_cursor    = 0
         self.key_cooldown   = 0
 
@@ -161,6 +160,8 @@ class MainMenu:
             self._event_name(event)
         elif self.state == "DIFF":
             self._event_diff(event)
+        elif self.state == "SETTINGS":
+            self._event_settings(event)
         elif self.state == "HISTORY":
             self._event_history(event)
 
@@ -179,6 +180,8 @@ class MainMenu:
                 self.name_error  = ""
             elif choice == "Historial":
                 self.state = "HISTORY"
+            elif choice == "Settings":
+                self.state = "SETTINGS"
             elif choice == "Salir":
                 pygame.quit()
                 sys.exit()
@@ -195,7 +198,11 @@ class MainMenu:
                 self.name_error = "El nombre debe tener al menos 3 caracteres."
             else:
                 self.name_error = ""
-                self.state = "DIFF"
+                self.result = {
+                    "name": self.player_name.strip(),
+                    "difficulty": DIFFICULTIES[self.diff_index],
+                }
+
             return
         if event.key == pygame.K_BACKSPACE:
             self.player_name = self.player_name[:-1]
@@ -208,6 +215,20 @@ class MainMenu:
                 self.player_name += char
             else:
                 self.name_error = f"Máximo {MAX_NAME_LEN} caracteres."
+
+    def _event_settings(self, event):
+        if event.type != pygame.KEYDOWN:
+            return
+        if event.key == pygame.K_ESCAPE:
+            self.state = "MAIN"
+            return
+        if event.key in (pygame.K_LEFT, pygame.K_a):
+            self.diff_index = (self.diff_index - 1) % len(DIFFICULTIES)
+        elif event.key in (pygame.K_RIGHT, pygame.K_d):
+            self.diff_index = (self.diff_index + 1) % len(DIFFICULTIES)
+
+
+
 
     def _event_diff(self, event):
         if event.type != pygame.KEYDOWN:
@@ -242,10 +263,23 @@ class MainMenu:
             self._draw_name()
         elif self.state == "DIFF":
             self._draw_diff()
+        elif self.state == "SETTINGS":
+            self._draw_settings()
         elif self.state == "HISTORY":
             self._draw_history()
 
     # ── Menú principal ────────────────────────────────────────────────────────
+
+    def _draw_settings(self):
+        render_text_centered(self.screen, "SETTINGS", self.font_big, COLORS["GOLD"], 60)
+        render_text_centered(self.screen, "Dificultad", self.font_mid, COLORS["WHITE"], 110)
+
+        # Dibujar cartas sin indicador "ARRIBA" ni "Jugador:" (no aplican en Settings)
+        self._draw_difficulty_cards(show_player_name=False)
+
+        render_text_centered(self.screen, "IZQ y DER para cambiar  |  ESC para volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+
+
 
     def _draw_main(self):
         # Título con efecto pulso
@@ -314,8 +348,9 @@ class MainMenu:
     # ── Dificultad ────────────────────────────────────────────────────────────
 
     def _draw_diff(self):
-        render_text_centered(self.screen, "Elige la dificultad", self.font_big, COLORS["GOLD"], 70)
+        self._draw_difficulty_cards(show_player_name=True)
 
+    def _draw_difficulty_cards(self, show_player_name: bool = True):
         card_w  = 160
         card_h  = 220
         gap     = 20
@@ -335,7 +370,7 @@ class MainMenu:
             name_surf = self.font_mid.render(diff["name"], True, diff["color"])
             self.screen.blit(name_surf, (x + (card_w - name_surf.get_width()) // 2, y + 15))
 
-            # Ícono de dificultad (calaveras / estrellas)
+            # Ícono de dificultad (estrellas)
             icon = "★" * (i + 1)
             icon_surf = self.font_mid.render(icon, True, diff["color"])
             self.screen.blit(icon_surf, (x + (card_w - icon_surf.get_width()) // 2, y + 50))
@@ -367,20 +402,16 @@ class MainMenu:
                 ss = self.font_small.render(st, True, COLORS["WHITE"])
                 self.screen.blit(ss, (x + (card_w - ss.get_width()) // 2, y + 155 + si * 22))
 
-            # Indicador seleccionado
-            if selected:
-                render_text_centered(self.screen, "ARRIBA", self.font_mid, diff["color"], y + card_h + 10)
-
-        # Nombre del jugador
-        render_text_centered(
-            self.screen,
-            f"Jugador: {self.player_name}",
-            self.font_mid,
-            COLORS["CYAN"],
-            390,
-        )
-
-        render_text_centered(self.screen, "IZQ y DER para Cambiar  |  ENTER para Comenzar  |  ESC para Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+        # Nombre del jugador solo cuando corresponde (pantalla de selección durante el juego)
+        if show_player_name:
+            render_text_centered(
+                self.screen,
+                f"Jugador: {self.player_name}",
+                self.font_mid,
+                COLORS["CYAN"],
+                390,
+            )
+            render_text_centered(self.screen, "IZQ y DER para Cambiar  |  ENTER para elegir  |  ESC para Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
 
     # ── Historial ─────────────────────────────────────────────────────────────
 

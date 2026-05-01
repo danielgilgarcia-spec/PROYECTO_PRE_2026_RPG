@@ -240,7 +240,10 @@ class Renderer:
             ox = 70 if i == 0 else 300
             if battle_choice == i:
                 btn_rect = pygame.Rect(ox - 8, 352, 120, 36)
-                pygame.draw.rect(self.screen, accent + (60,), btn_rect, border_radius=6)
+                # Surface con alpha para el fondo semitransparente
+                btn_surf = pygame.Surface((btn_rect.width, btn_rect.height), pygame.SRCALPHA)
+                btn_surf.fill((*accent, 60))
+                self.screen.blit(btn_surf, btn_rect.topleft)
                 pygame.draw.rect(self.screen, accent, btn_rect, 2, border_radius=6)
                 color = COLORS["WHITE"]
             else:

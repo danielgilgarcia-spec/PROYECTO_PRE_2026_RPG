@@ -89,6 +89,7 @@ class Game:
         music.play(music.MUSIC_STORY)   # intro = narrativa
 
         self._space_was_pressed = False
+        self._exit_triggered    = False
 
     # ------------------------------------------------------------------
     def _load_mini_images(self):
@@ -125,7 +126,7 @@ class Game:
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    return None  # ← IMPORTANTE
 
             keys               = pygame.key.get_pressed()
             space_pressed      = keys[pygame.K_SPACE]
@@ -141,15 +142,18 @@ class Game:
             elif self.state in (DIALOG_PRE, DIALOG_POST, FINAL_DIALOG):
                 self._update_dialog(keys, space_just_pressed)
             elif self.state == EXIT:
-                add_player_record(self.player_name, self.player.level, self.difficulty["name"])
-                pygame.quit()
-                sys.exit()
+                add_player_record(
+                    self.player_name,
+                    self.player.level,
+                    self.difficulty["name"]
+                )
+                return {"level": self.player.level}
 
             pygame.display.flip()
             self.clock.tick(60)
 
-        pygame.quit()
-        sys.exit()
+        return None  # ← por seguridad
+
 
     # ------------------------------------------------------------------
     def _update_intro(self, keys, space_just_pressed):
@@ -174,6 +178,7 @@ class Game:
             moved = self.player.move( 1, 0, self.current_map); pygame.time.wait(150)
 
         if moved:
+            self._exit_triggered = False   # al moverse, habilitar el tile de salida de nuevo
             self._check_random_encounter()
 
         tile_actual = self.current_map[self.player.y][self.player.x]
@@ -184,7 +189,9 @@ class Game:
             pygame.time.wait(500)
 
         if tile_actual == 5:
-            self._handle_exit()
+            if not self._exit_triggered:
+                self._exit_triggered = True
+                self._handle_exit()
 
         self.renderer.draw_exploring(
             self.player, self.player_name, self.difficulty,
@@ -217,11 +224,18 @@ class Game:
             else:
                 # Enemigo aleatorio derrotado → exploración
                 self.state = EXPLORING
+                self._exit_triggered = False
                 music.play(music.MUSIC_EXPLORE)
 
         elif result == "exploring":
             # Huida o derrota → exploración
+            # Si era un boss, mover al jugador a posición segura para no
+            # volver a pisar el tile 5 y relanzar el diálogo/batalla
+            if isinstance(self.enemy, (Enemy1, Enemy2, Enemy3)):
+                self.player.x = 5
+                self.player.y = 5
             self.state = EXPLORING
+            self._exit_triggered = True   # evitar re-trigger inmediato del tile 5
             music.play(music.MUSIC_EXPLORE)
 
     def _update_dialog(self, keys, space_just_pressed):
@@ -232,22 +246,28 @@ class Game:
             self.dialog_timer  = 0
 
         if self.dialog_index >= len(self.dialog_screens):
-            if self.state == DIALOG_PRE:
-                # Fin del diálogo pre → lanzar batalla
-                boss_map   = {1: Enemy1, 2: Enemy2, 3: Enemy3}
-                BossClass  = boss_map[self.nivel_actual]
-                self.enemy = BossClass(self.player.level)
-                self.battle.start(self.enemy, self.difficulty)
-                self.message = f"¡{self.enemy.name} aparece!"
-                self.state   = BATTLE
-                music.play(music.MUSIC_BATTLE)     # combate
+            # Dibujar la última pantalla un frame más antes de transicionar,
+            # así el SPACE que agotó el diálogo no se filtra a la batalla.
+            if self.dialog_index > len(self.dialog_screens):
+                # Segunda vez que llegamos aquí: ahora sí transicionamos
+                if self.state == DIALOG_PRE:
+                    boss_map   = {1: Enemy1, 2: Enemy2, 3: Enemy3}
+                    BossClass  = boss_map[self.nivel_actual]
+                    self.enemy = BossClass(self.player.level)
+                    self.battle.start(self.enemy, self.difficulty)
+                    self.message = f"¡{self.enemy.name} aparece!"
+                    self.state   = BATTLE
+                    music.play(music.MUSIC_BATTLE)
 
-            elif self.state == DIALOG_POST:
-                self._after_boss_dialog()
+                elif self.state == DIALOG_POST:
+                    self._after_boss_dialog()
 
-            elif self.state == FINAL_DIALOG:
-                self.state = EXIT
-
+                elif self.state == FINAL_DIALOG:
+                    self.state = EXIT
+            else:
+                # Primera vez: index == len. Dibujar la última pantalla todavía.
+                last = self.dialog_screens[self.dialog_index - 1]
+                self.renderer.draw_dialog(last, self.dialog_timer)
         else:
             self.renderer.draw_dialog(
                 self.dialog_screens[self.dialog_index], self.dialog_timer
