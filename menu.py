@@ -7,11 +7,8 @@ import pygame
 import os
 import sys
 from player_history import PLAYER_HISTORY
-from defined import COLORS, DIFFICULTIES
+from defined import COLORS, DIFFICULTIES, SCREEN_WIDTH, SCREEN_HEIGHT
 
-
-SCREEN_WIDTH  = 640
-SCREEN_HEIGHT = 560
 MAX_NAME_LEN = 12
 
 
@@ -351,7 +348,7 @@ class MainMenu:
     # ── Dificultad ────────────────────────────────────────────────────────────
 
     def _draw_diff(self):
-        render_text_centered(self.screen, "Elige la dificultad", self.font_big, COLORS["GOLD"], 70)
+        #render_text_centered(self.screen, "Elige la dificultad", self.font_big, COLORS["GOLD"], 70)
 
         card_w  = 160
         card_h  = 220
@@ -417,7 +414,7 @@ class MainMenu:
             390,
         )
 
-        render_text_centered(self.screen, "IZQ y DER para Cambiar  |  ENTER para Comenzar  |  ESC para Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+        render_text_centered(self.screen, "IZQ y DER para Cambiar|ENTER para elegir|ESC para Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
 
     # ── Historial ─────────────────────────────────────────────────────────────
 

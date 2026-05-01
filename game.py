@@ -89,6 +89,7 @@ class Game:
         music.play(music.MUSIC_STORY)   # intro = narrativa
 
         self._space_was_pressed = False
+        self._exit_triggered    = False
 
     # ------------------------------------------------------------------
     def _load_mini_images(self):
@@ -177,6 +178,7 @@ class Game:
             moved = self.player.move( 1, 0, self.current_map); pygame.time.wait(150)
 
         if moved:
+            self._exit_triggered = False   # al moverse, habilitar el tile de salida de nuevo
             self._check_random_encounter()
 
         tile_actual = self.current_map[self.player.y][self.player.x]
@@ -187,7 +189,9 @@ class Game:
             pygame.time.wait(500)
 
         if tile_actual == 5:
-            self._handle_exit()
+            if not self._exit_triggered:
+                self._exit_triggered = True
+                self._handle_exit()
 
         self.renderer.draw_exploring(
             self.player, self.player_name, self.difficulty,
@@ -220,11 +224,13 @@ class Game:
             else:
                 # Enemigo aleatorio derrotado → exploración
                 self.state = EXPLORING
+                self._exit_triggered = False
                 music.play(music.MUSIC_EXPLORE)
 
         elif result == "exploring":
             # Huida o derrota → exploración
             self.state = EXPLORING
+            self._exit_triggered = False
             music.play(music.MUSIC_EXPLORE)
 
     def _update_dialog(self, keys, space_just_pressed):

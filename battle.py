@@ -21,11 +21,19 @@ class BattleSystem:
 
     # ------------------------------------------------------------------
     def start(self, enemy, difficulty: dict):
-        """Inicia una batalla. Solo aplica multiplicador si no se ha aplicado ya."""
-        mult         = difficulty["enemy_mult"]
-        enemy.max_hp = int(enemy.max_hp * mult)
+        """Inicia una batalla. Aplica el multiplicador sobre los stats base
+        guardados en el enemigo, nunca acumulativamente."""
+        mult = difficulty["enemy_mult"]
+
+        # Guardar stats base la primera vez para no multiplicar varias veces
+        if not hasattr(enemy, "_base_max_hp"):
+            enemy._base_max_hp = enemy.max_hp
+            enemy._base_attack = enemy.attack
+
+        enemy.max_hp = int(enemy._base_max_hp * mult)
         enemy.hp     = enemy.max_hp
-        enemy.attack = int(enemy.attack * mult)
+        enemy.attack = int(enemy._base_attack * mult)
+
         self.choice          = 0
         self.message         = f"¡{enemy.name} aparece!"
         self._wait           = 0
@@ -94,7 +102,7 @@ class BattleSystem:
 
     @staticmethod
     def _check_levelup(player):
-        if player.exp >= player.level * 100:
+        while player.exp >= player.level * 100:
             player.level  += 1
             player.max_hp += 20
             player.hp      = player.max_hp
