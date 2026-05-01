@@ -95,10 +95,12 @@ def draw_stars(surface, t):
 class MainMenu:
     """
     Estados:
-        MAIN     > menú principal (Jugar / Historial / Salir)
-        NAME     > entrada de nombre
-        DIFF     > selección de dificultad
+        MAIN     > menú principal (Jugar / Settings / Historial / Salir)
+
+        JUGAR -> NAME     > entrada de nombre
+        SETTINGS -> DIFF     > selección de dificultad
         HISTORY  > historial de jugadores
+        SALIR     > cierra el juego
     """
 
     def __init__(self, screen):
@@ -161,6 +163,8 @@ class MainMenu:
             self._event_name(event)
         elif self.state == "DIFF":
             self._event_diff(event)
+        elif self.state == "SETTINGS":
+            self._event_settings(event)
         elif self.state == "HISTORY":
             self._event_history(event)
 
@@ -179,6 +183,8 @@ class MainMenu:
                 self.name_error  = ""
             elif choice == "Historial":
                 self.state = "HISTORY"
+            elif choice == "Settings":
+                self.state = "SETTINGS"
             elif choice == "Salir":
                 pygame.quit()
                 sys.exit()
@@ -195,7 +201,11 @@ class MainMenu:
                 self.name_error = "El nombre debe tener al menos 3 caracteres."
             else:
                 self.name_error = ""
-                self.state = "DIFF"
+                self.result = {
+                    "name": self.player_name.strip(),
+                    "difficulty": DIFFICULTIES[self.diff_index],
+                }
+
             return
         if event.key == pygame.K_BACKSPACE:
             self.player_name = self.player_name[:-1]
@@ -208,6 +218,20 @@ class MainMenu:
                 self.player_name += char
             else:
                 self.name_error = f"Máximo {MAX_NAME_LEN} caracteres."
+
+    def _event_settings(self, event):
+        if event.type != pygame.KEYDOWN:
+            return
+        if event.key == pygame.K_ESCAPE:
+            self.state = "MAIN"
+            return
+        if event.key in (pygame.K_LEFT, pygame.K_a):
+            self.diff_index = (self.diff_index - 1) % len(DIFFICULTIES)
+        elif event.key in (pygame.K_RIGHT, pygame.K_d):
+            self.diff_index = (self.diff_index + 1) % len(DIFFICULTIES)
+
+
+
 
     def _event_diff(self, event):
         if event.type != pygame.KEYDOWN:
@@ -242,10 +266,23 @@ class MainMenu:
             self._draw_name()
         elif self.state == "DIFF":
             self._draw_diff()
+        elif self.state == "SETTINGS":
+            self._draw_settings()
         elif self.state == "HISTORY":
             self._draw_history()
 
     # ── Menú principal ────────────────────────────────────────────────────────
+
+    def _draw_settings(self):
+        render_text_centered(self.screen, "SETTINGS", self.font_big, COLORS["GOLD"], 60)
+        render_text_centered(self.screen, "Dificultad", self.font_mid, COLORS["WHITE"], 110)
+
+        # reutilizamos las cartas
+        self._draw_diff()
+
+        render_text_centered(self.screen, "ESC para volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+
+
 
     def _draw_main(self):
         # Título con efecto pulso
