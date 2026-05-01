@@ -1,42 +1,48 @@
 """
 battle.py  –  Lógica de combate por turnos.
+
+Valores de retorno de handle_input:
+    "continue"   – la batalla sigue
+    "win"        – jugador ganó (solo se devuelve tras el periodo de espera)
+    "exploring"  – volver al mapa (derrota o huida)
 """
 
 import random
 import pygame
 
-from randomEnemies1 import RandomEnemy
-
 
 class BattleSystem:
-    """Gestiona toda la lógica de un combate por turnos."""
 
     def __init__(self):
-        self.choice = 0   # 0 = Atacar, 1 = Huir
+        self.choice  = 0
         self.message = ""
+        self._wait   = 0
+        self._pending_result = None  # resultado que se enviará tras la espera
 
     # ------------------------------------------------------------------
-    # Inicio de batalla
-    # ------------------------------------------------------------------
-    def start(self, enemy: RandomEnemy, difficulty: dict):
-        mult = difficulty["enemy_mult"]
+    def start(self, enemy, difficulty: dict):
+        """Inicia una batalla. Solo aplica multiplicador si no se ha aplicado ya."""
+        mult         = difficulty["enemy_mult"]
         enemy.max_hp = int(enemy.max_hp * mult)
         enemy.hp     = enemy.max_hp
         enemy.attack = int(enemy.attack * mult)
-        self.choice  = 0
-        self.message = f"¡Un {enemy.name} salvaje apareció!"
+        self.choice          = 0
+        self.message         = f"¡{enemy.name} aparece!"
+        self._wait           = 0
+        self._pending_result = None   # <-- reseteo crítico
 
-    # ------------------------------------------------------------------
-    # Input
     # ------------------------------------------------------------------
     def handle_input(self, keys, player, enemy) -> str:
-        """
-        Procesa input del jugador.
+        # Si estamos en periodo de espera, contar frames y luego devolver resultado
+        if self._pending_result is not None:
+            if self._wait > 0:
+                self._wait -= 1
+                return "continue"
+            result = self._pending_result
+            self._pending_result = None
+            return result
 
-        Devuelve:
-            "continue"   – la batalla sigue
-            "exploring"  – volver al mapa (victoria, derrota o huida)
-        """
+        # Input normal
         if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
             self.choice = 1 - self.choice
             pygame.time.wait(150)
@@ -51,47 +57,45 @@ class BattleSystem:
         return "continue"
 
     # ------------------------------------------------------------------
-    # Acciones
-    # ------------------------------------------------------------------
     def _resolve_attack(self, player, enemy) -> str:
-        damage = random.randint(player.attack - 3, player.attack + 5)
-        enemy.hp -= damage
+        damage   = random.randint(max(1, player.attack - 3), player.attack + 5)
+        enemy.hp = max(0, enemy.hp - damage)          # nunca negativo
         self.message = f"¡Atacaste por {damage} de daño!"
-        pygame.time.wait(800)
 
         if enemy.hp <= 0:
-            player.exp += enemy.exp_reward
+            player.exp  += enemy.exp_reward
             self.message = f"¡Derrotaste a {enemy.name}! +{enemy.exp_reward} EXP"
             self._check_levelup(player)
-            pygame.time.wait(2000)
-            return "exploring"
+            self._pending_result = "win"
+            self._wait           = 120   # ~2 seg a 60fps
+            return "continue"
 
-        # Contraataque del enemigo
-        pygame.time.wait(200)
-        enemy_damage = random.randint(enemy.attack - 2, enemy.attack + 3)
-        player.hp -= enemy_damage
-        self.message += f" | {enemy.name} te atacó por {enemy_damage}!"
+        # Contraataque
+        enemy_dmg  = random.randint(max(1, enemy.attack - 2), enemy.attack + 3)
+        player.hp  = max(0, player.hp - enemy_dmg)   # nunca negativo
+        self.message += f" | {enemy.name} te atacó por {enemy_dmg}!"
 
         if player.hp <= 0:
             self.message = "¡Has sido derrotado! Volviendo al inicio..."
-            pygame.time.wait(2000)
-            player.hp = player.max_hp
-            player.x  = 5
-            player.y  = 5
-            return "exploring"
+            player.hp    = player.max_hp
+            player.x     = 5
+            player.y     = 5
+            self._pending_result = "exploring"
+            self._wait           = 120
+            return "continue"
 
-        pygame.time.wait(500)
         return "continue"
 
     def _resolve_flee(self) -> str:
-        self.message = "¡Escapaste con éxito!"
-        pygame.time.wait(1000)
-        return "exploring"
+        self.message         = "¡Escapaste con éxito!"
+        self._pending_result = "exploring"
+        self._wait           = 60
+        return "continue"
 
     @staticmethod
     def _check_levelup(player):
         if player.exp >= player.level * 100:
-            player.level   += 1
-            player.max_hp  += 20
-            player.hp       = player.max_hp
-            player.attack  += 3
+            player.level  += 1
+            player.max_hp += 20
+            player.hp      = player.max_hp
+            player.attack += 3
