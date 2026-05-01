@@ -48,49 +48,49 @@ INTRO_SCREENS = [
 ENEMY1_DIALOG_PRE = [
     {
         #"title": "MIHAWK",
-        "text": ">>Vaya… el cazador de piratas ha vuelto.\n¿Sigues persiguiendo el título\nde mejor espadachín del mundo?<<",
+        "text": ">>Vaya… el cazador de piratas ha vuelto.\n¿Sigues queriendo ser\nel mejor espadachín del mundo?<<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/mihawk_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     },
     {
         #"title": "ZORO",
-        "text": ">>No lo persigo. \nVoy a quitártelo.<<",
+        "text": ">>Hice una promesa... \nasi que voy vencerte.<<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     },
     {
         #"title": "MIHAWK",
-        "text": ">> Hm. Tu ambición no ha cambiado… \npero tus ojos sí.<<",
+        "text": ">> Hm. Tu ambición no ha cambiado… \npero tus mirada sí<<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/mihawk_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     },
     {
         #"title": "ZORO",
-        "text": ">> Esta vez no vengo a perder<<",
+        "text": ">> Esta vez no voy a perder<<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     },
     {
         #"title": "MIHAWK",
-        "text": ">> Bien\nSería aburrido que murieras siendo débil<<",
+        "text": ">> Bien\nSería aburrido si sigues siendo débil<<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/mihawk_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     },
     {
        # "title": "MIHAWK",
-        "text": ">> Muéstrame hasta dónde han llegado tus espadas<<",
+        "text": ">> Muéstrame lo que has mejorado\ncon tus espadas<<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/mihawk_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     },
     {
        # "title": "ZORO",
-        "text": ">>Esta vez… no voy a caer<<",
+        "text": ">>Preparate!<<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
@@ -107,7 +107,7 @@ ENEMY1_DIALOG_POST = [
     },
     {
         #"title": "ZORO",
-        "text": ">> Tch… \nAún sigo en pie <<",
+        "text": ">> Tch… \nComo ves, aún sigo en pie <<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
@@ -135,14 +135,14 @@ ENEMY1_DIALOG_POST = [
     },
     {
         #"title": "ZORO",
-        "text": ">> No\nSolo significa que di un paso más para conseguirlo <<",
+        "text": ">> No.\nSolo significa que estoy un poco\nmás cerca de conseguirlo <<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     },
     {
         #"title": "ZORO",
-        "text": ">> Hmph…\nQuizá el mundo de los espadachines aún tenga algo interesante que ofrecer <<",
+        "text": ">> Hmph…\nQuizá el mundo de los espadachines\naún tenga algo interesante que ofrecer <<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"

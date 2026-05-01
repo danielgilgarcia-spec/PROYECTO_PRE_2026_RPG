@@ -2,6 +2,7 @@
 music.py  –  Gestión centralizada de música del juego.
 
 Archivos esperados en assets/music/:
+    music_menu.mp3        -> menú principal  ← PON TU ARCHIVO CON ESTE NOMBRE
     music_battle.wav      -> combate
     music_dialogue.mp3    -> conversaciones (diálogos con jefes)
     music_explore.mp3     -> exploración del mapa
@@ -13,12 +14,14 @@ Si un archivo no existe, falla silenciosamente sin romper el juego.
 import pygame
 
 # Claves de estado musical
+MUSIC_MENU     = "menu"
 MUSIC_EXPLORE  = "explore"
 MUSIC_BATTLE   = "battle"
 MUSIC_STORY    = "story"
 MUSIC_DIALOGUE = "dialogue"
 
 _TRACKS = {
+    MUSIC_MENU:     "assets/music/music_menu.mp3",
     MUSIC_EXPLORE:  "assets/music/music_explore.mp3",
     MUSIC_BATTLE:   "assets/music/music_battle.wav",
     MUSIC_STORY:    "assets/music/music_story.ogg",

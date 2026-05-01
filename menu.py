@@ -6,6 +6,7 @@ Incluye: selección de dificultad, nombre de usuario y historial de jugadores
 import pygame
 import os
 import sys
+import music
 from player_history import PLAYER_HISTORY
 from defined import COLORS, DIFFICULTIES, SCREEN_WIDTH, SCREEN_HEIGHT
 
@@ -133,6 +134,7 @@ class MainMenu:
     def run(self):
         """Bloquea hasta que el jugador inicia la partida o sale."""
         clock = pygame.time.Clock()
+        music.play(music.MUSIC_MENU)   # música del menú principal
         while True:
             dt = clock.tick(60)
             self.tick += 1
@@ -149,7 +151,8 @@ class MainMenu:
             pygame.display.flip()
 
             if self.result is not None:
-                return self.result          # {"name": ..., "difficulty": {...}}
+                music.stop()           # parar menú antes de pasar al juego
+                return self.result
 
     # ── Eventos ──────────────────────────────────────────────────────────────
 

@@ -154,46 +154,39 @@ class Renderer:
     # ------------------------------------------------------------------
     # Batalla — tres estilos visuales según nivel
     # ------------------------------------------------------------------
-    def draw_battle(self, player, enemy, message: str, battle_choice: int):
+    def draw_battle(self, player, enemy, message: str, battle_choice: int,
+                    show_menu: bool = True):
         nivel  = self.nivel_actual
         style  = _NIVEL_STYLE.get(nivel, _NIVEL_STYLE[1])
         accent = style["accent"]
 
-        # Fondo general con color del nivel
         self.screen.fill(style["menu_bg"])
 
         battle_rect = pygame.Rect(50, 50, SCREEN_WIDTH - 100, 200)
 
-        # --- Fondo de batalla: imagen o primitivas por nivel ---
         bg = self.assets.battle_bg.get(nivel)
         if bg:
             self.screen.blit(bg, (50, 50))
         else:
             self._draw_battle_bg_fallback(nivel, battle_rect)
 
-        # Borde con acento del nivel
         pygame.draw.rect(self.screen, accent, battle_rect, 3)
 
         # --- Enemigo (derecha) ---
         enemy_x, enemy_y = SCREEN_WIDTH - 160, 148
-
         if hasattr(enemy, "imagen") and enemy.imagen is not None:
             img = enemy.imagen
             if enemy.name == "Mihawk":
                 img = pygame.transform.scale(enemy.imagen, (120, 120))
             self.screen.blit(img, img.get_rect(center=(enemy_x, enemy_y)))
         else:
-            # Fallback círculo con color de acento
-            pygame.draw.circle(self.screen, accent,         (enemy_x, enemy_y), 42)
+            pygame.draw.circle(self.screen, accent,          (enemy_x, enemy_y), 42)
             pygame.draw.circle(self.screen, style["menu_bg"], (enemy_x, enemy_y), 38)
-            pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x - 10, enemy_y - 10), 7)
-            pygame.draw.circle(self.screen, COLORS["RED"], (enemy_x + 10, enemy_y - 10), 7)
+            pygame.draw.circle(self.screen, COLORS["RED"],   (enemy_x - 10, enemy_y - 10), 7)
+            pygame.draw.circle(self.screen, COLORS["RED"],   (enemy_x + 10, enemy_y - 10), 7)
 
-        # Nombre enemigo — mismo font que héroe, color acento del nivel
         name_e = self.font.render(enemy.name, True, style["name_color"])
         self.screen.blit(name_e, (enemy_x - name_e.get_width() // 2, 58))
-
-        # HP enemigo
         self._draw_hp_bar(enemy_x - 75, enemy_y + 58, enemy.hp, enemy.max_hp, accent)
         self.screen.blit(
             self.font.render(f"{enemy.hp}/{enemy.max_hp}", True, COLORS["WHITE"]),
@@ -202,7 +195,6 @@ class Renderer:
 
         # --- Jugador (izquierda) ---
         player_x, player_y = 140, 140
-
         if self._zoro_img is None:
             try:
                 img = pygame.image.load("assets/big_enemies/zoro_lucha.png").convert_alpha()
@@ -217,44 +209,49 @@ class Renderer:
         else:
             pygame.draw.circle(self.screen, COLORS["RED"], (player_x, player_y), 30)
 
-        # Nombre héroe — mismo estilo
         name_p = self.font.render(player.name, True, (160, 210, 255))
         self.screen.blit(name_p, (player_x - name_p.get_width() // 2, player_y + 58))
-
-        # HP héroe
         self._draw_hp_bar(player_x - 55, player_y + 75, player.hp, player.max_hp, (80, 200, 120))
         self.screen.blit(
             self.font.render(f"{player.hp}/{player.max_hp}", True, COLORS["WHITE"]),
             (player_x - 20, player_y + 77)
         )
 
-        # --- Menú de combate con estilo del nivel ---
-        menu_rect = pygame.Rect(50, 300, SCREEN_WIDTH - 100, 130)
+        # --- Panel de mensaje / menú ---
+        menu_rect = pygame.Rect(50, 295, SCREEN_WIDTH - 100, 145)
         pygame.draw.rect(self.screen, style["menu_bg"], menu_rect)
         pygame.draw.rect(self.screen, accent, menu_rect, 3)
 
-        self.screen.blit(self.font.render(message, True, COLORS["WHITE"]), (70, 320))
+        # Mensaje partido en hasta 2 líneas por el separador " | "
+        lines = message.split("  |  ", 1)
+        for li, line in enumerate(lines):
+            msg_surf = self.font.render(line, True, COLORS["WHITE"])
+            self.screen.blit(msg_surf, (70, 310 + li * 24))
 
-        # Opción seleccionada: fondo de acento + borde
-        for i, label in enumerate(["ATACAR", "HUIR"]):
-            ox = 70 if i == 0 else 300
-            if battle_choice == i:
-                btn_rect = pygame.Rect(ox - 8, 352, 120, 36)
-                # Surface con alpha para el fondo semitransparente
-                btn_surf = pygame.Surface((btn_rect.width, btn_rect.height), pygame.SRCALPHA)
-                btn_surf.fill((*accent, 60))
-                self.screen.blit(btn_surf, btn_rect.topleft)
-                pygame.draw.rect(self.screen, accent, btn_rect, 2, border_radius=6)
-                color = COLORS["WHITE"]
-            else:
-                color = COLORS["GRAY"]
-            self.screen.blit(self.font_big.render(label, True, color), (ox, 360))
+        if show_menu:
+            # Botones ATACAR / HUIR
+            for i, label in enumerate(["ATACAR", "HUIR"]):
+                ox = 70 if i == 0 else 300
+                if battle_choice == i:
+                    btn_rect = pygame.Rect(ox - 8, 358, 120, 36)
+                    btn_surf = pygame.Surface((btn_rect.width, btn_rect.height), pygame.SRCALPHA)
+                    btn_surf.fill((*accent, 60))
+                    self.screen.blit(btn_surf, btn_rect.topleft)
+                    pygame.draw.rect(self.screen, accent, btn_rect, 2, border_radius=6)
+                    color = COLORS["WHITE"]
+                else:
+                    color = COLORS["GRAY"]
+                self.screen.blit(self.font_big.render(label, True, color), (ox, 365))
 
-        self.screen.blit(
-            self.font.render("Flechas: Seleccionar  |  ESPACIO: Confirmar",
-                             True, COLORS["GRAY"]),
-            (70, 400)
-        )
+            self.screen.blit(
+                self.font.render("Flechas: Seleccionar  |  ESPACIO: Confirmar",
+                                 True, COLORS["GRAY"]),
+                (70, 408)
+            )
+        else:
+            # Fuera de la fase de elección: indicar que ESPACIO avanza
+            hint = self.font.render("Pulsa ESPACIO para continuar...", True, COLORS["GRAY"])
+            self.screen.blit(hint, (70, 390))
 
     def _draw_battle_bg_fallback(self, nivel: int, battle_rect: pygame.Rect):
         """Fondo de batalla con primitivas cuando no hay imagen."""
@@ -343,31 +340,49 @@ class Renderer:
             title_surf.set_alpha(alpha)
             self.screen.blit(title_surf, title_surf.get_rect(center=(SCREEN_WIDTH // 2, 110)))
 
-        text_lines    = screen_data.get("text", "").split("\n")
-        line_height   = 46
-        has_bg        = bool(screen_data.get("image_background"))
-        offset_x      = -100 if has_bg else 0
+        # ── Bocadillo de diálogo ──────────────────────────────────────────
+        text_lines  = screen_data.get("text", "").split("\n")
+        line_height = 38
+        has_bg      = bool(screen_data.get("image_background"))
+        offset_x    = -100 if has_bg else 0
 
-        text_surfaces = [self.font_big.render(l, True, COLORS["WHITE"]) for l in text_lines]
-        max_width     = max((ts.get_width() for ts in text_surfaces), default=100)
-        box_w = max_width + 80
-        box_h = len(text_surfaces) * line_height + 20
-        box_x = (SCREEN_WIDTH - box_w) // 2 + offset_x
-        box_y = 390
+        # Calcular ancho/alto del bocadillo según el texto
+        text_surfs = [self.font_big.render(l, True, COLORS["WHITE"]) for l in text_lines]
+        max_width  = max((ts.get_width() for ts in text_surfs), default=100)
+
+        # Clampear para que nunca sobresalga de la pantalla
+        BOX_MAX_W = SCREEN_WIDTH - 80   # margen de 40px a cada lado
+        box_w = min(max_width + 60, BOX_MAX_W)
+        box_h = len(text_surfs) * line_height + 30
+        box_x = max(20, (SCREEN_WIDTH - box_w) // 2 + offset_x)
+        # Asegurarse de que el borde derecho no salga de pantalla
+        box_x = min(box_x, SCREEN_WIDTH - box_w - 20)
+        box_y = SCREEN_HEIGHT - box_h - 55   # 55px sobre el pie de instrucción
+
+        # Nombre del hablante encima del bocadillo
+        speaker = screen_data.get("speaker", "")
+        if speaker:
+            speaker_font = pygame.font.Font(None, 26)
+            spk_surf = speaker_font.render(f"  {speaker}  ", True, COLORS["BLACK"])
+            spk_bg   = pygame.Rect(box_x + 12, box_y - 22,
+                                   spk_surf.get_width() + 4, spk_surf.get_height() + 2)
+            pygame.draw.rect(self.screen, screen_data.get("color", COLORS["WHITE"]), spk_bg, border_radius=4)
+            spk_surf.set_alpha(alpha)
+            self.screen.blit(spk_surf, (spk_bg.x + 2, spk_bg.y + 1))
 
         bocadillo = pygame.Rect(box_x, box_y, box_w, box_h)
-        pygame.draw.rect(self.screen, COLORS["D_GREEN"],    bocadillo)
-        pygame.draw.rect(self.screen, COLORS["DARK_GREEN"], bocadillo, 4)
+        pygame.draw.rect(self.screen, COLORS["D_GREEN"],    bocadillo, border_radius=6)
+        pygame.draw.rect(self.screen, COLORS["DARK_GREEN"], bocadillo, 3, border_radius=6)
 
-        for i, ts in enumerate(text_surfaces):
+        center_x = box_x + box_w // 2
+        for i, ts in enumerate(text_surfs):
             ts.set_alpha(alpha)
-            rect = ts.get_rect(center=(SCREEN_WIDTH // 2 + offset_x,
-                                       box_y + 20 + i * line_height))
+            rect = ts.get_rect(center=(center_x, box_y + 18 + i * line_height))
             self.screen.blit(ts, rect)
 
         instr = pygame.font.Font(None, 24).render(
             "Pulsa ESPACIO para continuar", True, COLORS["GRAY"])
-        self.screen.blit(instr, instr.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 20)))
+        self.screen.blit(instr, instr.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 18)))
 
     # ------------------------------------------------------------------
     # Intro

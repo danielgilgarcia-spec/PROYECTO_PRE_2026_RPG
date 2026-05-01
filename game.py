@@ -138,7 +138,7 @@ class Game:
             elif self.state == EXPLORING:
                 self._update_exploring(keys)
             elif self.state == BATTLE:
-                self._update_battle(keys)
+                self._update_battle(keys, space_just_pressed)
             elif self.state in (DIALOG_PRE, DIALOG_POST, FINAL_DIALOG):
                 self._update_dialog(keys, space_just_pressed)
             elif self.state == EXIT:
@@ -199,12 +199,14 @@ class Game:
             mini_imgs=self._mini_imgs, nivel=self.nivel_actual
         )
 
-    def _update_battle(self, keys):
-        result       = self.battle.handle_input(keys, self.player, self.enemy)
+    def _update_battle(self, keys, space_just_pressed):
+        result       = self.battle.update(keys, space_just_pressed, self.player, self.enemy)
         self.message = self.battle.message
 
         self.renderer.draw_battle(
-            self.player, self.enemy, self.message, self.battle.choice
+            self.player, self.enemy, self.message,
+            self.battle.choice,
+            show_menu=self.battle.in_choice_phase
         )
 
         if result == "win":
@@ -218,24 +220,19 @@ class Game:
                 if post_screens:
                     self._start_dialog(post_screens, EXPLORING)
                     self.state = DIALOG_POST
-                    # música ya cambiada en _start_dialog → MUSIC_DIALOGUE
                 else:
                     self._after_boss_dialog()
             else:
-                # Enemigo aleatorio derrotado → exploración
                 self.state = EXPLORING
                 self._exit_triggered = False
                 music.play(music.MUSIC_EXPLORE)
 
         elif result == "exploring":
-            # Huida o derrota → exploración
-            # Si era un boss, mover al jugador a posición segura para no
-            # volver a pisar el tile 5 y relanzar el diálogo/batalla
             if isinstance(self.enemy, (Enemy1, Enemy2, Enemy3)):
                 self.player.x = 5
                 self.player.y = 5
             self.state = EXPLORING
-            self._exit_triggered = True   # evitar re-trigger inmediato del tile 5
+            self._exit_triggered = True
             music.play(music.MUSIC_EXPLORE)
 
     def _update_dialog(self, keys, space_just_pressed):
