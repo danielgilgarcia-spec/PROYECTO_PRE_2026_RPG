@@ -38,7 +38,7 @@ class BattleSystem:
             if self._wait > 0:
                 self._wait -= 1
                 return "continue"
-            result               = self._pending_result
+            result = self._pending_result
             self._pending_result = None
             return result
 
