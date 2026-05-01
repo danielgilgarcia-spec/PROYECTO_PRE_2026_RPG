@@ -1,4 +1,4 @@
-dgg,2,Fácil
+dgg,3,Normal
 dgg2,2,Fácil
 dgg3,1,Difícil
 dgg4,1,Fácil

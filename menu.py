@@ -274,10 +274,10 @@ class MainMenu:
         render_text_centered(self.screen, "SETTINGS", self.font_big, COLORS["GOLD"], 60)
         render_text_centered(self.screen, "Dificultad", self.font_mid, COLORS["WHITE"], 110)
 
-        # reutilizamos las cartas
-        self._draw_diff()
+        # Dibujar cartas sin indicador "ARRIBA" ni "Jugador:" (no aplican en Settings)
+        self._draw_difficulty_cards(show_player_name=False)
 
-        render_text_centered(self.screen, "ESC para volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+        render_text_centered(self.screen, "IZQ y DER para cambiar  |  ESC para volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
 
 
 
@@ -348,8 +348,9 @@ class MainMenu:
     # ── Dificultad ────────────────────────────────────────────────────────────
 
     def _draw_diff(self):
-        #render_text_centered(self.screen, "Elige la dificultad", self.font_big, COLORS["GOLD"], 70)
+        self._draw_difficulty_cards(show_player_name=True)
 
+    def _draw_difficulty_cards(self, show_player_name: bool = True):
         card_w  = 160
         card_h  = 220
         gap     = 20
@@ -369,7 +370,7 @@ class MainMenu:
             name_surf = self.font_mid.render(diff["name"], True, diff["color"])
             self.screen.blit(name_surf, (x + (card_w - name_surf.get_width()) // 2, y + 15))
 
-            # Ícono de dificultad (calaveras / estrellas)
+            # Ícono de dificultad (estrellas)
             icon = "★" * (i + 1)
             icon_surf = self.font_mid.render(icon, True, diff["color"])
             self.screen.blit(icon_surf, (x + (card_w - icon_surf.get_width()) // 2, y + 50))
@@ -401,20 +402,16 @@ class MainMenu:
                 ss = self.font_small.render(st, True, COLORS["WHITE"])
                 self.screen.blit(ss, (x + (card_w - ss.get_width()) // 2, y + 155 + si * 22))
 
-            # Indicador seleccionado
-            if selected:
-                render_text_centered(self.screen, "ARRIBA", self.font_mid, diff["color"], y + card_h + 10)
-
-        # Nombre del jugador
-        render_text_centered(
-            self.screen,
-            f"Jugador: {self.player_name}",
-            self.font_mid,
-            COLORS["CYAN"],
-            390,
-        )
-
-        render_text_centered(self.screen, "IZQ y DER para Cambiar|ENTER para elegir|ESC para Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+        # Nombre del jugador solo cuando corresponde (pantalla de selección durante el juego)
+        if show_player_name:
+            render_text_centered(
+                self.screen,
+                f"Jugador: {self.player_name}",
+                self.font_mid,
+                COLORS["CYAN"],
+                390,
+            )
+            render_text_centered(self.screen, "IZQ y DER para Cambiar  |  ENTER para elegir  |  ESC para Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
 
     # ── Historial ─────────────────────────────────────────────────────────────
 

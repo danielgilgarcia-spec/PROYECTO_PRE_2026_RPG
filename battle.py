@@ -18,6 +18,7 @@ class BattleSystem:
         self.message = ""
         self._wait   = 0
         self._pending_result = None  # resultado que se enviará tras la espera
+        self._input_cooldown = 0    # frames de gracia al iniciar batalla
 
     # ------------------------------------------------------------------
     def start(self, enemy, difficulty: dict):
@@ -37,10 +38,18 @@ class BattleSystem:
         self.choice          = 0
         self.message         = f"¡{enemy.name} aparece!"
         self._wait           = 0
-        self._pending_result = None   # <-- reseteo crítico
+        self._pending_result = None
+        # Cooldown de 20 frames (~0.33s) para ignorar cualquier tecla que
+        # venga arrastrada del diálogo previo o de la exploración.
+        self._input_cooldown = 20
 
     # ------------------------------------------------------------------
     def handle_input(self, keys, player, enemy) -> str:
+        # Cooldown inicial: ignorar todo input durante los primeros frames
+        if self._input_cooldown > 0:
+            self._input_cooldown -= 1
+            return "continue"
+
         # Si estamos en periodo de espera, contar frames y luego devolver resultado
         if self._pending_result is not None:
             if self._wait > 0:

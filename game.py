@@ -229,8 +229,13 @@ class Game:
 
         elif result == "exploring":
             # Huida o derrota → exploración
+            # Si era un boss, mover al jugador a posición segura para no
+            # volver a pisar el tile 5 y relanzar el diálogo/batalla
+            if isinstance(self.enemy, (Enemy1, Enemy2, Enemy3)):
+                self.player.x = 5
+                self.player.y = 5
             self.state = EXPLORING
-            self._exit_triggered = False
+            self._exit_triggered = True   # evitar re-trigger inmediato del tile 5
             music.play(music.MUSIC_EXPLORE)
 
     def _update_dialog(self, keys, space_just_pressed):
@@ -241,22 +246,28 @@ class Game:
             self.dialog_timer  = 0
 
         if self.dialog_index >= len(self.dialog_screens):
-            if self.state == DIALOG_PRE:
-                # Fin del diálogo pre → lanzar batalla
-                boss_map   = {1: Enemy1, 2: Enemy2, 3: Enemy3}
-                BossClass  = boss_map[self.nivel_actual]
-                self.enemy = BossClass(self.player.level)
-                self.battle.start(self.enemy, self.difficulty)
-                self.message = f"¡{self.enemy.name} aparece!"
-                self.state   = BATTLE
-                music.play(music.MUSIC_BATTLE)     # combate
+            # Dibujar la última pantalla un frame más antes de transicionar,
+            # así el SPACE que agotó el diálogo no se filtra a la batalla.
+            if self.dialog_index > len(self.dialog_screens):
+                # Segunda vez que llegamos aquí: ahora sí transicionamos
+                if self.state == DIALOG_PRE:
+                    boss_map   = {1: Enemy1, 2: Enemy2, 3: Enemy3}
+                    BossClass  = boss_map[self.nivel_actual]
+                    self.enemy = BossClass(self.player.level)
+                    self.battle.start(self.enemy, self.difficulty)
+                    self.message = f"¡{self.enemy.name} aparece!"
+                    self.state   = BATTLE
+                    music.play(music.MUSIC_BATTLE)
 
-            elif self.state == DIALOG_POST:
-                self._after_boss_dialog()
+                elif self.state == DIALOG_POST:
+                    self._after_boss_dialog()
 
-            elif self.state == FINAL_DIALOG:
-                self.state = EXIT
-
+                elif self.state == FINAL_DIALOG:
+                    self.state = EXIT
+            else:
+                # Primera vez: index == len. Dibujar la última pantalla todavía.
+                last = self.dialog_screens[self.dialog_index - 1]
+                self.renderer.draw_dialog(last, self.dialog_timer)
         else:
             self.renderer.draw_dialog(
                 self.dialog_screens[self.dialog_index], self.dialog_timer
