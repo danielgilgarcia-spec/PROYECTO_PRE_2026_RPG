@@ -277,7 +277,7 @@ class MainMenu:
         render_text_centered(self.screen, "SETTINGS", self.font_big, COLORS["GOLD"], 60)
         render_text_centered(self.screen, "Dificultad", self.font_mid, COLORS["WHITE"], 110)
 
-        # Dibujar cartas sin indicador "ARRIBA" ni "Jugador:" (no aplican en Settings)
+        
         self._draw_difficulty_cards(show_player_name=False)
 
         render_text_centered(self.screen, "IZQ y DER para cambiar  |  ESC para volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
@@ -318,12 +318,12 @@ class MainMenu:
             )
 
         # Pie
-        render_text_centered(self.screen, "ARRIBA y ABBAJO para Mover  |  ENTER para Confirmar", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+        render_text_centered(self.screen, "ARRIBA y ABAJO > mover  |  ENTER > Confirmar", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
 
     # ── Nombre ────────────────────────────────────────────────────────────────
 
     def _draw_name(self):
-        render_text_centered(self.screen, "¿Cómo te llamas, héroe?", self.font_big, COLORS["GOLD"], 100)
+        render_text_centered(self.screen, "¿Cómo te llamas?", self.font_big, COLORS["GOLD"], 100)
 
         # Caja de texto
         box = pygame.Rect(SCREEN_WIDTH // 2 - 160, 200, 320, 50)
@@ -414,7 +414,7 @@ class MainMenu:
                 COLORS["CYAN"],
                 390,
             )
-            render_text_centered(self.screen, "IZQ y DER para Cambiar  |  ENTER para elegir  |  ESC para Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
+            render_text_centered(self.screen, "IZQ y DER > Cambiar  |  ENTER > elegir  |  ESC > Volver", self.font_small, COLORS["GRAY"], SCREEN_HEIGHT - 30)
 
     # ── Historial ─────────────────────────────────────────────────────────────
 
