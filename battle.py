@@ -3,7 +3,7 @@ battle.py  –  Lógica de combate por turnos.
 
 Valores de retorno de handle_input:
     "continue"   – la batalla sigue
-    "win"        – jugador ganó (para detectar jefes y lanzar diálogo post)
+    "win"        – jugador ganó (solo se devuelve tras el periodo de espera)
     "exploring"  – volver al mapa (derrota o huida)
 """
 
@@ -12,60 +12,35 @@ import pygame
 
 
 class BattleSystem:
-    """Gestiona toda la lógica de un combate por turnos."""
 
     def __init__(self):
-        self.choice  = 0      # 0 = Atacar, 1 = Huir
+        self.choice  = 0
         self.message = ""
-        self._wait   = 0      # frames de espera no bloqueante
-        self._state  = "input"  # "input" | "waiting_win" | "waiting_flee" | "waiting_death"
+        self._wait   = 0
+        self._pending_result = None  # resultado que se enviará tras la espera
 
     # ------------------------------------------------------------------
-    # Inicio de batalla
-    # ------------------------------------------------------------------
     def start(self, enemy, difficulty: dict):
+        """Inicia una batalla. Solo aplica multiplicador si no se ha aplicado ya."""
         mult         = difficulty["enemy_mult"]
         enemy.max_hp = int(enemy.max_hp * mult)
         enemy.hp     = enemy.max_hp
         enemy.attack = int(enemy.attack * mult)
-        self.choice  = 0
-        self.message = f"¡Un {enemy.name} salvaje apareció!"
-        self._state  = "input"
-        self._wait   = 0
+        self.choice          = 0
+        self.message         = f"¡{enemy.name} aparece!"
+        self._wait           = 0
+        self._pending_result = None   # <-- reseteo crítico
 
-    # ------------------------------------------------------------------
-    # Input — no bloqueante, usa frames en lugar de pygame.time.wait
     # ------------------------------------------------------------------
     def handle_input(self, keys, player, enemy) -> str:
-        """
-        Procesa input del jugador cada frame.
-
-        Devuelve:
-            "continue"   – la batalla sigue
-            "win"        – jugador venció al enemigo
-            "exploring"  – volver al mapa (derrota o huida)
-        """
-        # Estados de espera no bloqueantes
-        if self._state == "waiting_win":
-            self._wait -= 1
-            if self._wait <= 0:
-                self._state = "input"
-                return "win"
-            return "continue"
-
-        if self._state == "waiting_flee":
-            self._wait -= 1
-            if self._wait <= 0:
-                self._state = "input"
-                return "exploring"
-            return "continue"
-
-        if self._state == "waiting_death":
-            self._wait -= 1
-            if self._wait <= 0:
-                self._state = "input"
-                return "exploring"
-            return "continue"
+        # Si estamos en periodo de espera, contar frames y luego devolver resultado
+        if self._pending_result is not None:
+            if self._wait > 0:
+                self._wait -= 1
+                return "continue"
+            result               = self._pending_result
+            self._pending_result = None
+            return result
 
         # Input normal
         if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
@@ -82,42 +57,39 @@ class BattleSystem:
         return "continue"
 
     # ------------------------------------------------------------------
-    # Acciones
-    # ------------------------------------------------------------------
     def _resolve_attack(self, player, enemy) -> str:
         damage   = random.randint(max(1, player.attack - 3), player.attack + 5)
-        enemy.hp -= damage
+        enemy.hp = max(0, enemy.hp - damage)          # nunca negativo
         self.message = f"¡Atacaste por {damage} de daño!"
 
         if enemy.hp <= 0:
             player.exp  += enemy.exp_reward
             self.message = f"¡Derrotaste a {enemy.name}! +{enemy.exp_reward} EXP"
             self._check_levelup(player)
-            # Espera ~120 frames (2 seg a 60fps) sin bloquear
-            self._state = "waiting_win"
-            self._wait  = 120
+            self._pending_result = "win"
+            self._wait           = 120   # ~2 seg a 60fps
             return "continue"
 
         # Contraataque
-        enemy_damage  = random.randint(max(1, enemy.attack - 2), enemy.attack + 3)
-        player.hp    -= enemy_damage
-        self.message += f" | {enemy.name} te atacó por {enemy_damage}!"
+        enemy_dmg  = random.randint(max(1, enemy.attack - 2), enemy.attack + 3)
+        player.hp  = max(0, player.hp - enemy_dmg)   # nunca negativo
+        self.message += f" | {enemy.name} te atacó por {enemy_dmg}!"
 
         if player.hp <= 0:
             self.message = "¡Has sido derrotado! Volviendo al inicio..."
             player.hp    = player.max_hp
             player.x     = 5
             player.y     = 5
-            self._state  = "waiting_death"
-            self._wait   = 120
+            self._pending_result = "exploring"
+            self._wait           = 120
             return "continue"
 
         return "continue"
 
     def _resolve_flee(self) -> str:
-        self.message = "¡Escapaste con éxito!"
-        self._state  = "waiting_flee"
-        self._wait   = 60
+        self.message         = "¡Escapaste con éxito!"
+        self._pending_result = "exploring"
+        self._wait           = 60
         return "continue"
 
     @staticmethod
