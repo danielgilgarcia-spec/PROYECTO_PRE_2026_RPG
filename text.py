@@ -95,7 +95,10 @@ ENEMY1_DIALOG_PRE = [
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
     }
+
 ]
+
+
 
 ENEMY1_DIALOG_POST = [
     {
@@ -146,7 +149,38 @@ ENEMY1_DIALOG_POST = [
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_mar.png"
-    }
+    },
+# ── Nami aparece ──────────────────────────────────
+    {
+        "text": ">> ¡ZORO! \n¡Por fin te encuentro, idiota! \n¿Sabes cuánto tiempo llevo\nbuscándote por esta isla?! <<",
+        "color": (255, 140, 0),
+        "image": "assets/big_enemies/nami_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_mar.png"
+    },
+    {
+        "text": ">> Nami… \n¿Qué haces aquí? <<",
+        "color": (34, 139, 34),
+        "image": "assets/big_enemies/zoro_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_mar.png"
+    },
+    {
+        "text": ">> ¡Esa es mi pregunta! \nMe separé del grupo y acabé aquí.\nEstaba atrapada… pero escuché el ruido\nde tu combate y supe que eras tú <<",
+        "color": (255, 140, 0),
+        "image": "assets/big_enemies/nami_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_mar.png"
+    },
+    {
+        "text": ">> Tenía muchas ganas\nde volver a verte, Zoro.\nAunque no te lo merezcas\npor perderte así... <<",
+        "color": (255, 140, 0),
+        "image": "assets/big_enemies/nami_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_mar.png"
+    },
+    {
+        "text": ">> Tch… \nYo también. \nVamos, hay que seguir buscando\nal resto <<",
+        "color": (34, 139, 34),
+        "image": "assets/big_enemies/zoro_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_mar.png"
+    },
 ]
 
 ENEMY2_DIALOG_PRE = [
