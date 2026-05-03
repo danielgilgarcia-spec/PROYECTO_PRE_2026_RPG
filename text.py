@@ -284,7 +284,38 @@ ENEMY2_DIALOG_POST = [
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_desierto.png"
-    }
+    },
+    # ── Usopp aparece ─────────────────────────────────
+    {
+        "text": ">> ¡¡ZORO!! \n¡¡Eres tú!! \n¡¡Pensé que no te volvería a ver!! <<",
+        "color": (210, 180, 50),
+        "image": "assets/big_enemies/usopp_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_desierto.png"
+    },
+    {
+        "text": ">> Usopp… \n¿Llorando otra vez? <<",
+        "color": (34, 139, 34),
+        "image": "assets/big_enemies/zoro_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_desierto.png"
+    },
+    {
+        "text": ">> ¡¡No estoy llorando!! \nEs el polvo del desierto… \nEstaba escondido aquí desde que\nnos separamos. \n¡Tenía muchísimas ganas\nde reencontrarme contigo! <<",
+        "color": (210, 180, 50),
+        "image": "assets/big_enemies/usopp_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_desierto.png"
+    },
+    {
+        "text": ">> Yo también me alegro, Usopp.\nVamos, aún falta encontrar a Luffy <<",
+        "color": (34, 139, 34),
+        "image": "assets/big_enemies/zoro_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_desierto.png"
+    },
+    {
+        "text": ">> ¡¡Sí!! \n¡¡El gran guerrero del mar\nacompaña a Zoro Roronoa!! <<",
+        "color": (210, 180, 50),
+        "image": "assets/big_enemies/usopp_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_desierto.png"
+    },
 ]
 
 ENEMY3_DIALOG_PRE = [
