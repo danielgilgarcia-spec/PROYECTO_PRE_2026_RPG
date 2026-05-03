@@ -461,79 +461,67 @@ class Renderer:
     def draw_minimap(self, current_map: list, player_x: int, player_y: int,
                      nivel: int = 1):
         """
-        Dibuja un minimapa en la esquina inferior derecha.
-
-        Colores por tipo de tile:
-            0 pasto      → verde
-            1 árbol      → verde oscuro
-            2 agua       → azul
-            3 camino     → gris claro
-            4 casa       → marrón
-            5 salida     → dorado parpadeante
-            6 arena      → arena/beige
+        Dibuja un minimapa suavizado en la esquina inferior derecha.
+        Renderiza el mapa en una Surface del tamaño exacto del mapa (1px por tile)
+        y luego usa smoothscale para escalarlo sin bordes visibles entre celdas.
         """
         rows = len(current_map)
         cols = len(current_map[0]) if rows else 0
         if rows == 0 or cols == 0:
             return
 
-        # Tamaño del minimapa y posición (esquina inferior derecha, sobre el HUD)
-        MINI_W    = 150
-        MINI_H    = 110
-        MARGIN    = 8
-        HUD_H     = 80   # altura del HUD inferior
-        mini_x    = SCREEN_WIDTH  - MINI_W - MARGIN
-        mini_y    = SCREEN_HEIGHT - HUD_H  - MINI_H - MARGIN
+        MINI_W  = 160
+        MINI_H  = 120
+        MARGIN  = 10
+        HUD_H   = 80
+        mini_x  = SCREEN_WIDTH  - MINI_W - MARGIN
+        mini_y  = SCREEN_HEIGHT - HUD_H  - MINI_H - MARGIN
 
-        cell_w = MINI_W / cols
-        cell_h = MINI_H / rows
-
-        # Fondo semi-transparente
-        bg_surf = pygame.Surface((MINI_W + 4, MINI_H + 4), pygame.SRCALPHA)
-        bg_surf.fill((0, 0, 0, 160))
-        self.screen.blit(bg_surf, (mini_x - 2, mini_y - 2))
-
-        # Colores de tile para el minimapa
         TILE_COLORS = {
-            0: (60,  160,  60),    # pasto
-            1: (20,   80,  20),    # árbol
-            2: (30,   80, 180),    # agua
-            3: (180, 180, 160),    # camino
-            4: (139,  90,  43),    # casa
-            5: (255, 215,   0),    # salida (dorado)
-            6: (200, 170,  90),    # arena
+            0: (60,  160,  60),
+            1: (20,   80,  20),
+            2: (30,   80, 180),
+            3: (180, 180, 160),
+            4: (139,  90,  43),
+            5: (255, 215,   0),
+            6: (200, 170,  90),
         }
 
-        # Parpadeo para el tile de salida (tipo 5)
-        ticks = pygame.time.get_ticks()
-        exit_visible = (ticks // 400) % 2 == 0   # alterna cada 400 ms
+        # Parpadeo del tile de salida
+        ticks        = pygame.time.get_ticks()
+        exit_visible = (ticks // 500) % 2 == 0
 
+        # --- Dibujar en una Surface de 1px por tile ---
+        raw = pygame.Surface((cols, rows))
         for row_i, row in enumerate(current_map):
             for col_i, tile in enumerate(row):
-                cx = mini_x + int(col_i * cell_w)
-                cy = mini_y + int(row_i * cell_h)
-                cw = max(1, int(cell_w))
-                ch = max(1, int(cell_h))
-
                 if tile == 5 and not exit_visible:
-                    color = TILE_COLORS[0]   # ocultar en el frame "apagado"
+                    color = TILE_COLORS[0]
                 else:
-                    color = TILE_COLORS.get(tile, (50, 50, 50))
+                    color = TILE_COLORS.get(tile, (40, 40, 40))
+                raw.set_at((col_i, row_i), color)
 
-                pygame.draw.rect(self.screen, color,
-                                 pygame.Rect(cx, cy, cw, ch))
+        # Escalar sin interpolación → nítido pero sin huecos entre celdas
+        scaled = pygame.transform.scale(raw, (MINI_W, MINI_H))
 
-        # Punto del jugador (blanco, encima de todo)
-        px = mini_x + int(player_x * cell_w + cell_w / 2)
-        py = mini_y + int(player_y * cell_h + cell_h / 2)
-        pygame.draw.circle(self.screen, (255, 255, 255), (px, py), max(2, int(cell_w * 1.2)))
-        pygame.draw.circle(self.screen, (0,   0,   0),   (px, py), max(1, int(cell_w * 0.5)))
+        # Fondo oscuro semi-transparente detrás del minimapa
+        bg = pygame.Surface((MINI_W + 6, MINI_H + 6), pygame.SRCALPHA)
+        bg.fill((0, 0, 0, 150))
+        self.screen.blit(bg, (mini_x - 3, mini_y - 3))
 
-        # Borde del minimapa con color según nivel
+        self.screen.blit(scaled, (mini_x, mini_y))
+
+        # Punto del jugador encima del mapa escalado
+        px = mini_x + int(player_x / cols * MINI_W)
+        py = mini_y + int(player_y / rows * MINI_H)
+        pygame.draw.circle(self.screen, (255, 255, 255), (px, py), 4)
+        pygame.draw.circle(self.screen, (0,   0,   0),   (px, py), 2)
+
+        # Borde con color según nivel
         border_colors = {1: (74, 159, 255), 2: (232, 160, 32), 3: (192, 96, 248)}
         border_color  = border_colors.get(nivel, (200, 200, 200))
         pygame.draw.rect(self.screen, border_color,
-                         pygame.Rect(mini_x - 2, mini_y - 2, MINI_W + 4, MINI_H + 4), 2)
+                         pygame.Rect(mini_x - 3, mini_y - 3, MINI_W + 6, MINI_H + 6), 2)
 
         # Etiqueta "MAPA"
         label = pygame.font.Font(None, 18).render("MAPA", True, border_color)
