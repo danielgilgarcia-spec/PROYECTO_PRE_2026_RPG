@@ -321,35 +321,35 @@ ENEMY2_DIALOG_POST = [
 ENEMY3_DIALOG_PRE = [
     {
         #"title": "KING",
-        "text": ">>Vaya… el cazador de piratas ha vuelto.\n¿Sigues persiguiendo el título\nde mejor espadachín del mundo?<<",
+        "text": ">>Vaya… el cazador de piratas de los sombreros de paja.\n¿Crees que vas a poder contra mi?<<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/king_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
        # "title": "ZORO",
-        "text": ">>No lo persigo. \nVoy a quitártelo.<<",
+        "text": ">>No lo creo... \nLO SE!!!.<<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
         #"title": "KING",
-        "text": ">> Hm. Tu ambición no ha cambiado… \npero tus ojos sí.<<",
+        "text": ">> JAJAJAJAJAJA Veamos de que pie calzas \n Tu nivel de Ki es grande pero no para tanto.<<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/king_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
         #"title": "ZORO",
-        "text": ">> Esta vez no vengo a perder<<",
+        "text": ">> Voy a preparar chuletas de dinosaurio con lo que quede de ti<<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
         #"title": "KING",
-        "text": ">> Bien\nSería aburrido que murieras siendo débil<<",
+        "text": ">> JAJAJAJAJA\nQue gracioso eres!! <<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/king_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
@@ -363,7 +363,7 @@ ENEMY3_DIALOG_PRE = [
     },
     {
         #"title": "ZORO",
-        "text": ">>Esta vez… no voy a caer<<",
+        "text": ">>Preparate!!\n ALLA VOY !!! <<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
@@ -380,42 +380,42 @@ ENEMY3_DIALOG_POST = [
     },
     {
         #"title": "ZORO",
-        "text": ">> Tch… \nAún sigo en pie <<",
+        "text": ">> Tch… \nSolo he utilizado el 70 % de mi poder <<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
        # "title": "KING",
-        "text": ">> Por un instante pensé\nque morirías antes de lograrlo <<",
+        "text": ">> La verdad que te has vuelto realmente fuerte.\n Quien lo hubiera dicho de un cabeza de musgo <<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/king_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
         #"title": "ZORO",
-        "text": ">> No puedo morir…\nhasta convertirme en el mejor espadachín del mundo <<",
+        "text": ">> JEJE...\nLa verdad es que has sido un digo rival <<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
        # "title": "KING",
-        "text": ">> Entonces supongo…\nque ese título ahora te pertenece <<",
+        "text": ">> Ya no te queda ningún espadachín mas por derrotar\n El título ahora te pertenece <<",
         "color": (139, 69, 19),
         "image": "assets/big_enemies/king_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
         #"title": "ZORO",
-        "text": ">> No\nSolo significa que di un paso más para conseguirlo <<",
+        "text": ">> No\n Seguro que hay mas rivales formidables a lo largo de mi camino <<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     },
     {
         #"title": "ZORO",
-        "text": ">> Hmph…\nQuizá el mundo de los espadachines aún tenga algo interesante que ofrecer <<",
+        "text": ">> Bueno…\n Creo que me voy pegar una buena siesta cuando acabe esto<<",
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
