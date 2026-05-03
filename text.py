@@ -419,6 +419,49 @@ ENEMY3_DIALOG_POST = [
         "color": (34, 139, 34),
         "image": "assets/big_enemies/zoro_historia.png",
         "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
+    },
+    # ── Luffy aparece ──────────────────────────────────
+    {
+        "text": ">> ¡¡ZOROOOO!! \n¡¡Te encontré!! \n¡¡Sabía que estarías aquí peleando!! <<",
+        "color": (220, 50, 50),
+        "image": "assets/big_enemies/luffy_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
+    },
+    {
+        "text": ">> …Luffy.\n¿Cómo llegaste hasta aquí? <<",
+        "color": (34, 139, 34),
+        "image": "assets/big_enemies/zoro_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
+    },
+    {
+        "text": ">> ¡Me olí la carne asada\ndesde tres islas de distancia!\n¡Pero no había carne, solo peleas! <<",
+        "color": (220, 50, 50),
+        "image": "assets/big_enemies/luffy_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
+    },
+    {
+        "text": ">> Eres un idiota, capitán <<",
+        "color": (34, 139, 34),
+        "image": "assets/big_enemies/zoro_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
+    },
+    {
+        "text": ">> ¡¡Pero tenía MUCHÍSIMAS ganas\nde volverte a ver, Zoro!!\n¡¡La tripulación no es la misma sin ti!! <<",
+        "color": (220, 50, 50),
+        "image": "assets/big_enemies/luffy_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
+    },
+    {
+        "text": ">> …Yo también, idiota.\nYa estamos todos!!\n que volver al Sunny <<",
+        "color": (34, 139, 34),
+        "image": "assets/big_enemies/zoro_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
+    },
+    {
+        "text": ">> ¡¡SHISHISHI!! \n¡¡Vamos a tener una gran fiesta\ncuando subamos a bordo!! <<",
+        "color": (220, 50, 50),
+        "image": "assets/big_enemies/luffy_historia.png",
+        "image_background": "assets/battle_backgrounds/bg_fortaleza.png"
     }
 ]
 
