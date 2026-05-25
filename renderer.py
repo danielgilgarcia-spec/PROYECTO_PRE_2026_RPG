@@ -151,9 +151,6 @@ class Renderer:
         self.screen.blit(self.font.render(stats_text, True, COLORS["WHITE"]), (10, SCREEN_HEIGHT - 70))
         self.screen.blit(self.font.render(message,    True, COLORS["WHITE"]), (10, SCREEN_HEIGHT - 40))
 
-        # Minimapa en esquina inferior derecha
-        self.draw_minimap(current_map, player.x, player.y, nivel=nivel)
-
     # ------------------------------------------------------------------
     # Batalla — tres estilos visuales según nivel
     # ------------------------------------------------------------------
